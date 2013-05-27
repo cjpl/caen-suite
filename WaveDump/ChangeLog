@@ -1,0 +1,54 @@
+
+  -----------------------------------------------------------------------------
+
+                   --- CAEN SpA - Computing Division ---
+
+  -----------------------------------------------------------------------------
+
+  WaveDump Release Notes
+
+  -----------------------------------------------------------------------------
+  Rel. 3.5.2 - Bug Fix on single event saving
+		     - Bug Fix on binary file saving for X742 boards
+  Rel. 3.5.1 - Bug Fix on IRQ readout
+  Rel. 3.5   - Added support for XX761 Board family
+  Rel. 3.2   - Add support for X742 boards
+  Rel. 3.1   - Various bugfix
+  Rel. 3.0   - Modified the configuration file using the CAENDigitizer function
+		     - Fix bugs on data acquisition on XX740 Board family
+  Rel. 2.2   - Added isupport for XX751 Board family
+		     - Used optimed version of CAEN_DGTZ_Decode function in order of speed-up the acquisition rate
+  Rel. 2.1   - Added interrupt support
+             - Added support for 8 bit data events
+             - Added support for binary file saving
+             - Added support for file saving with channel header (binary and ascii)
+  Rel. 2.0   - Code completely rewritten using the CAENDigitizer and CAENComm libraries
+  Rel. 1.9   - Code clearup and refactoring. Added full support for V1740.
+  Rel. 1.8   - March 2008 - First official Release
+
+  -----------------------------------------------------------------------------
+
+
+  Description
+  -----------
+
+  This file describes the revision history of WaveDump, a sample program for
+  the CAEN VME Digitisers boards.
+  See the file WaveDump_README.txt for more informations.
+
+  System Requirements
+  -------------------
+
+  - CAEN Digitizer library
+  - Linux kernel 2.4 or 2.6
+  - GNUplot 4.2 (www.gnuplot.org)
+
+
+  How to get support
+  ------------------
+
+  Our Software Support Group is available for questions, support and any other
+  software related issue concerning CAEN products; for software support
+  visit the page www.caen.it/computing/support.php or send an email to
+  support.computing@caen.it
+

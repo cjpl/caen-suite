@@ -1,0 +1,61 @@
+-----------------------------------------------------------------------------
+
+                   --- CAEN SpA - Computing Division ---
+
+                                www.caen.it
+
+  -----------------------------------------------------------------------------
+
+  Program: WaveDump
+
+
+  -----------------------------------------------------------------------------
+
+
+  Content
+  -----------------------------------------------------------------------------
+
+  WaveDump_README.txt        :  This file.
+
+  WaveDump_ReleaseNotes.txt  :  Revision History and notes.
+
+   src          :  Source files
+   inc          :  Include files
+   build		:  Windows Project files
+   bin			:  Executable files
+   doc			:  Documentation
+   gnuplot		:  Windows gnuplot executable folder 
+
+
+  System Requirements
+  -----------------------------------------------------------------------------
+  - CAEN Digitizer Library
+  - Windows 98/2000/XP or Linux kernel 2.4 or 2.6
+  - GNUplot 4.2 (www.gnuplot.org)
+
+
+  How to get support
+  -----------------------------------------------------------------------------
+  Our Software Support Group is available for questions, support and any other
+  software related issue concerning CAEN products; for software support
+  visit the page www.caen.it/computing/support.php or send an email to
+  support.computing@caen.it
+
+
+  Description:
+  -----------------------------------------------------------------------------
+
+
+
+  Syntax
+  -----------------------------------------------------------------------------
+  WaveDump [ConfigFile]
+  Default config file is "/etc/wavedump/WaveDumpConfig.txt"
+
+
+  Keyword list and syntax for the configuration file:
+  -----------------------------------------------------------------------------
+  For configuration file syntax please refer to the Wavedump Manual.
+
+  -----------------------------------------------------------------------------
+

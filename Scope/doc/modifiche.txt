@@ -1,0 +1,29 @@
+.) AppSettings:
+	.) Eliminato VME_BOARD_TYPE e sostituito con LINK_TYPE
+	.) Rinominato VME_LINK in LINK_NUM
+	.) Rinominato VME_BOARD_NUM in NODE_NUM
+	.) Aggiunto BASE_ADDRESS in sezione MISC
+	.) Eliminato BASE_ADDRESS da sezione ACQ_BOARDS
+.) MainFrame:
+	.) Modificata sequenza di boot: adesso non ci si connette automaticamente ma si chiede 
+		Tipo di Link, LinkNumber, NodeNumber con finestra di dialogo
+	.) Aggiunta form per selezione dispsoitivo (Tipo link, numero link, numero nodo)
+	.) Aggiunta gestione per connessione e disconnessione dalla scheda da comando toolBar
+	.) Modificato tab View del canale:
+		..) Modificato layout dei controlli
+		..) Sostituita impostazione numerica scala verticale con comboBox con valori preimpostati
+		..) Modificate alcune labels
+	.) Modificato tab COMMON:
+		..) Modificate alcune labels
+	.) Aggiunto pane a statusBar con nome scheda connessa e revisione fw
+	.) Modificata gestione cursori: adesso ogni canale non ha + il proprio cursore 
+		ma esistono 2 cursori per panello che associati ad un solo canale
+	.) Modificato controllo cursore: adesso ingloba due cursori e visualizza deltaT e deltaV
+		aggiunto combo per selezione canale (fisico o virtuale)
+	.) GenericBoardChannel: Modificata gestione draw cursore
+.) Record campioni:
+	.) Testato record campioni nei tre formati disponibili: a me sembra corretto
+		Ex se valore campio = 8143 si trova
+		ASCII       -> 8143 (1 campione per riga)
+		ASCII HEX   -> 00001FCF (1 campione per riga)		
+		HEX         -> CF1F0000 (formato binario LE, tutti i campioni in sequenza)

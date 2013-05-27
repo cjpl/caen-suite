@@ -1,0 +1,86 @@
+  -----------------------------------------------------------------------------
+
+                   --- CAEN SpA - Computing Systems Division --- 
+
+  -----------------------------------------------------------------------------
+
+  CAEN Digitizer Release Notes
+
+  -----------------------------------------------------------------------------
+
+  Rel. 1.5.3  -    July  2010
+
+  -----------------------------------------------------------------------------
+ 
+
+  Description
+  -----------
+
+  This document is updated for every official release of the CAEN digitizer tool 
+  and it contains various information specific to this software which can not
+  be found in the User's Manual, available together with the software or on 
+  the CAEN web site: www.caen.it.
+
+
+ System Requirements
+ -------------------
+ 
+  - CAENVME Library
+  - CAENVMEDigitizerSDK
+  - Linux O.S.
+  - For compiling graphical demos and tools only: 
+    - wxWidgets 2.8.10 Library (www.wxWidgets.org) 
+
+  What's New in Rel. 1.5.3
+  --------------------------
+  
+  - fixed bug:  recorded samples' value was not correctly formatted: now, the recorded value
+                is the raw value read from the ADC.
+
+  What's New in Rel. 1.5.2
+  --------------------------
+  
+  - fixed bug:  the software stalled when using a DT5751 (and may all the ##51 family) in DES mode 
+  - fixed bug:  unsupported board's channels were disabled as GUI controls but not in the 
+                underlying channel mask.
+
+  What's New in Rel. 1.5.1
+  --------------------------
+  
+  - fixed bug:  the vertical scale resolution for 51 series was not properly setted
+  - fixed bug:  the sample to bit convertion failed above certain signal level due to16 bit variable overflow.
+  - fixed bug:  removed wait for exit of working thread (compiling with g++ with optimization for speed 
+			    enabled, the test variable m_thrad_exited was removed and always return false, causing an infinite loop,
+				furthermore the wait loop was not necessary)
+   -fixed bug:	when running on Linux the settings and image files are now correctly fetched from
+				the /etc/CAENScope folder. 
+  
+  What's New in Rel. 1.5.0
+  --------------------------
+  
+  - added support for Desktop (DT5724, DT5720, DT5721, DT5731, DT5740) and
+		NIM (N6724, N6720, N6721, N6731, N6740) digitizers
+  - Added support for V1751, VX1751, DT5751, N6751 digitizers
+  - upgraded to support the wxWidgets 2.8.10 library
+
+  What's New in Rel. 1.4.2
+  --------------------------
+
+  - upgraded to support the wxWidgets 2.8.8 library
+
+  What's New in Rel. 1.4.1
+  --------------------------
+
+   New Features and Important Notes
+   --------------------------------
+    - CAENScope rev 1.4.1:
+        -- Added support for V1740
+        -- Replaced dependencies to CAENVMEToolLib with CAENdigitizerSDK                                                   
+
+  How to get support
+  ------------------
+
+  Our Software Support Group is available for questions, support and any other 
+  software related issue concerning CAEN products; for software support
+  visit the page www.caen.it/computing/support.php.
+

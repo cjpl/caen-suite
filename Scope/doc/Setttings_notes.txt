@@ -1,0 +1,132 @@
+	Application setting file structure
+	The fields marked with * need to be setted by the user, the others may be setted through the application GUI and will be overwritten 
+	upon closing
+	
+	[RECORD]
+	|
+	|- RECORD_FOLDER= ./record/						// The folder where to store record files
+	[TRIGGER]
+	|
+	|- TRIGGER_MSK= 0								// Bitmask : 0x0001: external 0x0002: Channels 0x0004: autoretrig 
+	|- POST_TRIGGER= 0								// Post trigger value
+	|- TRIGGER_POSITION_KEEP= 0						// Try to keep X trigger position on video 
+    |- TRIGGER_EDGE= 0								// 0: No Trigger  1: Rising edge  2: Falling edge
+	|- NUM_SAMPLE=32768								// Trigger number of samples
+	[MISC]
+	|
+*	|- LINK_TYPE=									// The type of Link: 'USB', 'OPTICAL', 'V1718' or 'V2718': if empty , the application will try to open V1718 and V2178
+	|												// using the specified VME_LINK and VME_BOARD_NUM
+*	|- LINK_NUM=0									// The link number used when opening the board
+*	|- NODE_NUM=0									// The node number used when opening the board
+*	|- ADDRESS= 0x3210								// Hex board base address
+	|- STARTED=0									// Get acquisition status upon loading
+	|- SHOW_LEFT_PANE= 0							// Get the left pane show status upon loading
+	|- SHOW_BOTTOM_PANE= 0							// Get the bottom pane show status upon loading
+	|- SHOW_SCOPE_0_PANE= 0							// Get the scope 0 pane show status upon loading
+	|- SHOW_SCOPE_1_PANE= 0							// Get the scope 1 pane show status upon loading
+	|- SHOW_SCOPE_2_PANE= 0							// Get the scope 2 pane show status upon loading
+	|- SHOW_SCOPE_3_PANE= 0							// Get the scope 3 pane show status upon loading
+	|- GRID_LINE_COLOR_0= 0xffffff					// RGB grid color for scope 0
+	|- GRID_LINE_COLOR_1= 0xffffff					// RGB grid color for scope 1
+	|- GRID_LINE_COLOR_2= 0xffffff					// RGB grid color for scope 2
+	|- GRID_LINE_COLOR_3= 0xffffff					// RGB grid color for scope 3
+	|- GRID_LINE_TYPE_0= 0							// Grid line type for scope 0
+	|- GRID_LINE_TYPE_1= 0							// Grid line type for scope 1
+	|- GRID_LINE_TYPE_2= 0							// Grid line type for scope 2
+	|- GRID_LINE_TYPE_3= 0							// Grid line type for scope 3
+	|- GRID_LINE_WIDTH_0= 1							// Grid line width for scope 0
+	|- GRID_LINE_WIDTH_1= 1							// Grid line width for scope 1
+	|- GRID_LINE_WIDTH_2= 1							// Grid line width for scope 2
+	|- GRID_LINE_WIDTH_3= 1							// Grid line width for scope 3
+	|- OFFSET_SEC_0= 0.0							// Horizontal offset for scope 0
+	|- OFFSET_SEC_1= 0.0							// Horizontal offset for scope 1
+	|- OFFSET_SEC_2= 0.0							// Horizontal offset for scope 2
+	|- OFFSET_SEC_3= 0.0							// Horizontal offset for scope 3
+	|- SEC_2_DIV_0= 1000							// Div/ Sec conversion factor ( div_val= SEC_2_DIV* sec_val) for scope 0
+	|- SEC_2_DIV_1= 1000							// Div/ Sec conversion factor ( div_val= SEC_2_DIV* sec_val) for scope 1
+	|- SEC_2_DIV_2= 1000							// Div/ Sec conversion factor ( div_val= SEC_2_DIV* sec_val) for scope 2
+	|- SEC_2_DIV_3= 1000							// Div/ Sec conversion factor ( div_val= SEC_2_DIV* sec_val) for scope 3
+	|- BACKGROUND_COLOR_0= 0x000000					// RGB color background color for scope 0
+	|- BACKGROUND_COLOR_1= 0x000000					// RGB color background color for scope 1
+	|- BACKGROUND_COLOR_2= 0x000000					// RGB color background color for scope 2
+	|- BACKGROUND_COLOR_3= 0x000000					// RGB color background color for scope 3
+	|- EXT_RATE_MHZ= 100							// external sample rate (MHz)
+	|- INT_RATE_MHZ= 10								// internal sample rate (MHz)
+	|- USE_EXT_CLOCK= 0								// use external clock
+	|- USE_TTL= 0									// use TTL/NIM external signals
+	|- MAX_LOG_X= 1000								// Depth of sample buffer
+	|- ACQ_BOARD_NUM= 1								// The number of acquisition board supported (Max 1 so far)
+	[ACQ_BOARDS]
+	|
+	|- [0]
+	|   |
+*	|   |- BOARD_TYPE=								// The acquisition board type. Valid values are:
+	|												// 	VME: V1724, V1721, V1720, V1731, V1731_DES, V1740, V1751, V1751_DES
+	|												// 	DESKTOP: DT5724, DT5721, DT5720, DT5731, DT5731_DES, DT5740, DT5751, DT5751_DES
+	|												// 	NIM: N6724, N6721, N6720, N6731, N6731_DES, N6740, N6751, N6751_DES
+	|												// 	If not specified , the application will read the adc type form registers
+	|- NUM_CHANNEL= N								// Number of physical board channels
+	|- NUM_VIRTUAL_CHANNEL= M						// Number of virtual board channels
+	|- [0]		// Physical channel settings
+	|   |- ENABLED= 1						
+	|   |- SCOPE_VIEW_ENABLED_0= 1					// Enable channel view in scope 1
+	|   |- SCOPE_VIEW_ENABLED_1= 1					// Enable channel view in scope 2
+	|   |- SCOPE_VIEW_ENABLED_2= 1					// Enable channel view in scope 3
+	|   |- SCOPE_VIEW_ENABLED_3= 1					// Enable channel view in scope 4
+	|   |- LINE_COLOR_0= 0xaaff00					// RGB color Scope 1
+	|   |- LINE_WIDTH_0= 1							// Pixels Scope 1
+	|   |- OFFSET_VOLT_0= 0.0						// Volts Scope 1
+	|   |- VOLT_2_DIV_0= 4							// Div/ Volts conversion factor ( div_val= VOLT_2_DIV* volt_val) Scope 1
+	|   |- LINE_COLOR_1= 0xaaff00					// RGB color Scope 2
+	|   |- LINE_WIDTH_1= 1							// Pixels Scope 2
+	|   |- OFFSET_VOLT_1= 0.0						// Volts Scope 2
+	|   |- VOLT_2_DIV_1= 4							// Div/ Volts conversion factor ( div_val= VOLT_2_DIV* volt_val) Scope 2
+	|   |- LINE_COLOR_2= 0xaaff00					// RGB color Scope 3
+	|   |- LINE_WIDTH_2= 1							// Pixels Scope 3
+	|   |- OFFSET_VOLT_2= 0.0						// Volts Scope 3
+	|   |- VOLT_2_DIV_2= 4							// Div/ Volts conversion factor ( div_val= VOLT_2_DIV* volt_val) Scope 3
+	|   |- LINE_COLOR_3= 0xaaff00					// RGB color Scope 4
+	|   |- LINE_WIDTH_3= 1							// Pixels Scope 4
+	|   |- OFFSET_VOLT_3= 0.0						// Volts Scope 4
+	|   |- VOLT_2_DIV_3= 4							// Div/ Volts conversion factor ( div_val= VOLT_2_DIV* volt_val) Scope 4
+	|   |- RECORD_RATE_DIVIDER= 1					// Samples' recording rate divider
+	|   |- RECORD_ENABLED= 1						// Samples' recording enabled
+	|   |- RECORD_FORMAT= 0							// Record save format 0: hex 1: ASCII decimal 2: ASCII hexdecimal
+	|   |	// Specific physical channel settings
+	|   |- DAC_VOLT_2_BIT=26214.4					// DAC Bits/ Volt conversion factor ( bit_val= DAC_VOLT_2_BIT* volt_val) (2^16/2.500)
+	|   |- DAC_OFFSET_BIT=0							// DAC Offset Bit
+	|   |- TRIGGER_THRESHOLD_VOLT= 1.25				// Trigger Threshold (Volts)
+	|   |- TRIGGER_THR_SAMPLE= 100					// Number of samples after trigger threshold
+	|   | ...
+	|- [N-1]
+	|   |- { CHANNEL DATA }
+	|- [VIRT_0]	// Physical channel settings
+	|   |- ENABLED= 1						
+	|   |- SCOPE_VIEW_ENABLED_0= 1					// Enable channel view in scope 1
+	|   |- SCOPE_VIEW_ENABLED_1= 1					// Enable channel view in scope 2
+	|   |- SCOPE_VIEW_ENABLED_2= 1					// Enable channel view in scope 3
+	|   |- SCOPE_VIEW_ENABLED_3= 1					// Enable channel view in scope 4
+	|   |- LINE_COLOR_0= 0xaaff00					// RGB color Scope 1
+	|   |- LINE_WIDTH_0= 1							// Pixels Scope 1
+	|   |- OFFSET_Y_0= 0.0							// Y Offset Scope 1
+	|   |- VOLT_2_DIV_0= 4							// Div/ Volts conversion factor ( div_val= VOLT_2_DIV* volt_val) Scope 1
+	|   |- LINE_COLOR_1= 0xaaff00					// RGB color Scope 2
+	|   |- LINE_WIDTH_1= 1							// Pixels Scope 2
+	|   |- OFFSET_Y_1= 0.0							// Y Offset Scope 2
+	|   |- VOLT_2_DIV_1= 4							// Div/ Volts conversion factor ( div_val= VOLT_2_DIV* volt_val) Scope 2
+	|   |- LINE_COLOR_2= 0xaaff00					// RGB color Scope 3
+	|   |- LINE_WIDTH_2= 1							// Pixels Scope 3
+	|   |- OFFSET_Y_2= 0.0							// Y Offset Scope 3
+	|   |- VOLT_2_DIV_2= 4							// Div/ Volts conversion factor ( div_val= VOLT_2_DIV* volt_val) Scope 3
+	|   |- LINE_COLOR_3= 0xaaff00					// RGB color Scope 4
+	|   |- LINE_WIDTH_3= 1							// Pixels Scope 4
+	|   |- OFFSET_Y_3= 0.0							// Y Offset Scope 4
+	|   |- VOLT_2_DIV_3= 4							// Div/ Volts conversion factor ( div_val= VOLT_2_DIV* volt_val) Scope 4
+	|   |- RECORD_RATE_DIVIDER= 1					// Samples' recording rate divider
+	|   |- RECORD_ENABLED= 1						// Samples' recording enabled
+	|   |- RECORD_FORMAT= 0							// Record save format 0: hex 1: ASCII decimal 2: ASCII hexdecimal
+	|   |	// Specific virtual channel settings
+	|   |- VIRTUAL_CHANNEL_DEF=CH1,CH2,ADD			// Virtual channel RPN definition
+	|   | ...
+	|- [VIRT_(M-1)]
+	|   |- { VIRTUAL CHANNEL DATA }

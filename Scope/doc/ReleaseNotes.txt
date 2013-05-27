@@ -1,0 +1,102 @@
+  -----------------------------------------------------------------------------
+
+                   --- CAEN SpA - Computing Systems Division --- 
+
+  -----------------------------------------------------------------------------
+
+  CAEN Digitizer Release Notes
+
+  -----------------------------------------------------------------------------
+
+  Rel. 1.6.1  -    November 2010
+
+  -----------------------------------------------------------------------------
+ 
+
+  Description
+  -----------
+
+  This document is updated for every official release of the CAEN digitizer tool 
+  and it contains various information specific to this software which can not
+  be found in the User's Manual, available together with the software or on 
+  the CAEN web site: www.caen.it.
+
+
+  System Requirements
+  -------------------
+ 
+  - CAENVME Library
+  - Windows 2000/XP/Vista
+  - For compiling graphical demos and tools only: 
+    - wxWidgets 2.8.10 Library (www.wxWidgets.org) 
+
+
+
+  What's New in Rel. 1.6.1
+  --------------------------
+
+  - modified the layout of some components
+  - improved error handling during connection
+  - horizontal offset is now easier to set
+  - added choice of channel group on V1740, DT5740, N6740
+  - added choice of trigger-enabled channels on V1740, DT5740, N6740
+  - added TRIGGER_ENABLED setting
+  - removed CHANNEL_GROUP. it is now set in a dialog
+  - bugfixes
+
+  What's New in Rel. 1.6.0
+  --------------------------
+
+  - added form to select device
+  - added control to connect/disconnect the board
+  - modified channel tab view
+  - modified common tab
+  - modified cursors handling
+  - CAENVMEDigitizerSDK now integrated in the package
+
+  What's New in Rel. 1.5.3
+  --------------------------
+  
+  - fixed bug:  recorded samples' value was not correctly formatted: now, the recorded value
+                is the raw value read from the ADC.
+	
+  What's New in Rel. 1.5.1
+  --------------------------
+  
+  - fixed bug:  the vertical scale resolution for 51 series was not properly setted
+  - fixed bug:  the sample to bit convertion failed above certain signal level due to16 bit variable overflow.
+  - fixed bug:  removed wait for exit of working thread (compiling with g++ with optimization for speed 
+			    enabled, the test variable m_thrad_exited was removed and always return false, causing an infinite loop,
+				furthermore the wait loop was not necessary)
+   -fixed bug:	when running on Linux the settings and image files are now correctly fetched from
+				the /etc/CAENScope folder. 
+  
+  What's New in Rel. 1.5.0
+  --------------------------
+  
+  - added support for Desktop (DT5724, DT5720, DT5721, DT5731, DT5740) and
+		NIM (N6724, N6720, N6721, N6731, N6740) digitizers
+  - Added support for V1751, VX1751, DT5751, N6751 digitizers
+  - upgraded to support the wxWidgets 2.8.10 library
+
+  What's New in Rel. 1.4.2
+  --------------------------
+
+  - upgraded to support the wxWidgets 2.8.8 library
+
+  What's New in Rel. 1.4.1
+  --------------------------
+
+   New Features and Important Notes
+   --------------------------------
+    - CAENScope rev 1.4.1:
+        -- Added support for V1740
+        -- Replaced dependencies to CAENVMEToolLib with CAENdigitizerSDK                                                   
+
+  How to get support
+  ------------------
+
+  Our Software Support Group is available for questions, support and any other 
+  software related issue concerning CAEN products; for software support
+  visit the page www.caen.it/computing/support.php.
+

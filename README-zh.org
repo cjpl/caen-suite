@@ -1,0 +1,43 @@
+# -*- mode: org; coding: utf-8; -*-
+#+TITLE: CAEN 软件套件
+#+AUTHOR: CAEN-Soft
+
+* URL 及软件版本
+
+Digitizer 工具：
+  - http://www.caen.it/csite/Function.jsp?parent=38&idfun=97
+  - CAEN Scope
+    - 1.6.1, 2010-07
+    - http://www.caen.it/csite/CaenProd.jsp?parent=38&idmod=677
+    - CAEN DigitizerSDK: 1.3, 2010-02-10, 包含在 CAENScope 当中
+  - WaveDump
+    - 3.5.2, 2013-05
+    - http://www.caen.it/csite/CaenProd.jsp?parent=38&idmod=692
+
+依赖的库：
+  - CAENComm
+    - 1.02, 2010-07
+    - http://www.caen.it/csite/CaenProd.jsp?idmod=684&parent=38
+  - CAENDigitizer Library
+    - 2.3.1, 2013-04
+    - http://www.caen.it/csite/CaenProd.jsp?idmod=717&parent=38
+  - CAEN USB Driver
+    - 1.1, 2013-01
+    - 可在 DT5751 的产品网页中下载
+  - CAENVME Library
+    - 2.30.2, 2011-11
+    - http://www.caen.it/csite/CaenProd.jsp?idmod=689&parent=38
+
+其它软件：
+  - CAENUpgrader
+    - Firmware Upgrade Tool for Front-end Boards Bridges & VME Power Supply
+    - http://www.caentechnologies.com/csite/CaenProd.jsp?idmod=743&parent=38
+    - *Important*: CAENUpgrader rel. 1.3.0 or above does not work with
+      DT5720-N6720/24/40/42/51 Win32 USB Driver rel. < 3.4.7 (Desktop & NIM
+      Digitizers)
+  - DeskBoot
+    - Firmware Boot Controller for Front-End NIM and Desktop Digitizers
+    - http://www.caentechnologies.com/csite/CaenProd.jsp?idmod=822&parent=38
+    - *Notes*: DeskBoot rel. 1.0 or above does not work with
+      DT5720-N6720/24/40/42/51 Win32 USB Driver rel. < 3.4.7 (Desktop & NIM
+      Digitizers)
