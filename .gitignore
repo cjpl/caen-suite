@@ -1,0 +1,17 @@
+*~
+\#*
+*.old
+*.bak
+
+# temporary files
+*.o
+*.exe
+*.cache
+*.pyc
+*.luac
+.deps/
+
+# temporary directories
+tmp/
+build/
+bin/
