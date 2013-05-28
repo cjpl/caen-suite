@@ -173,8 +173,7 @@ void InfoDialog::CreateControls()
 	this->m_left_sizer->Add( hyper_link, 1, wxALIGN_CENTER_HORIZONTAL|wxALL, 5);
 
 	// CAENVMETool revision
-	this->m_caenvmetool_rev->SetLabel( (const wxChar*)cvt_V1724_SW_rev());
-
+	this->m_caenvmetool_rev->SetLabel( wxString::FromAscii(cvt_V1724_SW_rev()) );
 }
 
 /*!

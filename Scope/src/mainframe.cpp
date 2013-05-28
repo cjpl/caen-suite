@@ -3233,7 +3233,7 @@ bool MainFrame::SetConnected( bool connect, bool prompt_user)
 			}
 			int *data= new int();
 			*data= n_samples;
-			this->m_size_X_control->Append( (const wxChar*)tmp, data);
+			this->m_size_X_control->Append( wxString::FromAscii(tmp), data);
 		}
 		this->m_size_X_control->SetSelection( 0);
 

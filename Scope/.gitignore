@@ -3,3 +3,4 @@ config.log
 config.status
 src/wavedump
 doc/html/
+src/CAENScope
