@@ -28,7 +28,7 @@ OPEN USB 0 0
 CORRECTION_LEVEL AUTO
 
 # GNUPLOT_PATH: path to gnuplot executable file
-GNUPLOT_PATH  ".\"
+GNUPLOT_PATH  "./"
 
 # OUTPUT_FILE_FORMAT: output file can be either ASCII (column of decimal numbers) or binary 
 # (2 bytes per sample, except for Mod 721 and Mod 731 that is 1 byte per sample)
