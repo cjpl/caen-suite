@@ -141,7 +141,7 @@ void CommonChControl::CreateControls()
     m_ch_DAC_control->SetHelpText(_("Set channel DAC offset"));
     if (ShowToolTips())
         m_ch_DAC_control->SetToolTip(_("Set channel DAC offset"));
-    m_DAC_sizer->Add(m_ch_DAC_control, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT, 2);
+    m_DAC_sizer->Add(m_ch_DAC_control, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxADJUST_MINSIZE, 2);
 
     m_medium_value_control = new wxStaticText( itemCommonChControlBase1, wxID_STATIC, _("0"), wxDefaultPosition, wxDefaultSize, wxALIGN_CENTRE );
     m_medium_value_control->SetHelpText(_("The samples' medium value"));

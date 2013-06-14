@@ -1,5 +1,5 @@
 /* XPM */
-static char * scope2_xpm[] = {
+const static char * scope2_xpm[] = {
 "32 32 5 1",
 " 	c #000000",
 ".	c #FFFFFF",
