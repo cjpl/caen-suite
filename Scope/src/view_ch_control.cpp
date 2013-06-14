@@ -272,7 +272,7 @@ bool ViewChControl::UpdateControls( )
 	this->m_ch_offset_control->SetValue( (int)(double)(this->m_p_board_channel->m_offset_y[ this->m_scope_index]* 10.0));
 	if( this->m_p_board_channel->m_volt_2_div[ this->m_scope_index]== 0)
 		this->m_p_board_channel->m_volt_2_div[ this->m_scope_index]= 0.01;
-	wxString voltPerDiv= wxString::Format( _T("%d"), (int)(double)(1000.0/ this->m_p_board_channel->m_volt_2_div[ this->m_scope_index]));
+	wxString voltPerDiv= wxString::Format( _T("%d"), (int)(double)(1000.0/ this->m_p_board_channel->m_volt_2_div[ this->m_scope_index]) );
 	// For previous version compatibility
 	int idx= this->m_ch_volt_per_div_comboBox->FindString( voltPerDiv);
 	if( idx>= 0) 
@@ -282,7 +282,7 @@ bool ViewChControl::UpdateControls( )
 	else
 	{
 		this->m_ch_volt_per_div_comboBox->Select(0);
-		int value= atoi( this->m_ch_volt_per_div_comboBox->GetLabelText( ).ToAscii());
+		int value= wxAtoi( this->m_ch_volt_per_div_comboBox->GetLabelText( ) );
 		this->UpdateVoltPerDiv( value);
 	}
 	this->UpdateLinePen();
@@ -340,7 +340,7 @@ void ViewChControl::UpdateLinePen( )
 
 void ViewChControl::OnLineWidthSpinctrlTextUpdated( wxCommandEvent& /* event*/ )
 {
-	int value= atoi( this->m_line_width_control->GetLabel().ToAscii());
+	int value= wxAtoi( this->m_line_width_control->GetLabel() );
     this->UpdateLineWidth( value);
 }
 
@@ -401,7 +401,7 @@ void ViewChControl::OnViewEnableTogglebuttonClick( wxCommandEvent& /*event*/ )
 
 void ViewChControl::OnViewVoltPerDivComboboxUpdated( wxCommandEvent& /*event*/ )
 {
-	int value= atoi( this->m_ch_volt_per_div_comboBox->GetLabelText( ).ToAscii());
+	int value= wxAtoi( this->m_ch_volt_per_div_comboBox->GetLabelText( ));
 	this->UpdateVoltPerDiv( value);
 }
 

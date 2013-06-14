@@ -235,7 +235,7 @@ void TriggerChControl::OnThresholdSpinctrlTextUpdated( wxCommandEvent& /* event*
 	{
 		return;
 	}
-	int value= atoi( this->m_ch_threshold_control->GetLabel( ).ToAscii());
+	int value= wxAtoi( this->m_ch_threshold_control->GetLabel( ) );
 	this->UpdateThreshold( value);
 }
 
@@ -249,7 +249,7 @@ void TriggerChControl::OnThrSamplesSpinctrlTextUpdated( wxCommandEvent& /* event
 	{
 		return;
 	}
-    int value= atoi( this->m_thr_sample_control->GetLabel( ).ToAscii());
+    int value= wxAtoi( this->m_thr_sample_control->GetLabel( ) );
 	this->UpdateThrSamples( value);
 }
 

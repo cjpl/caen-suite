@@ -2343,7 +2343,7 @@ void MainFrame::OnSizeXChoiceSelected( wxCommandEvent& /* event*/ )
 
 void MainFrame::OnGridLineWidth1SpinctrlTextUpdated( wxCommandEvent& /* event*/ )
 {
-	int value= atoi( this->m_grid_line_width_1_control->GetLabel().ToAscii());
+	int value= wxAtoi( this->m_grid_line_width_1_control->GetLabel());
 	this->UpdateGridLineWidth( 0, value);
 }
 
@@ -2361,7 +2361,7 @@ void MainFrame::UpdateGridLineWidth( int scope_index, int value)
 
 void MainFrame::OnTriggerPostSpinctrlTextUpdated( wxCommandEvent& /* event*/ )
 {
-    int value= atoi( this->m_trigger_post_control->GetLabel().ToAscii());
+    int value= wxAtoi( this->m_trigger_post_control->GetLabel() );
 	this->UpdateTriggerPost( value);
 }
 int MainFrame::GetBufferLength() const
@@ -2923,7 +2923,7 @@ void MainFrame::OnGridLineWidth2SpinctrlUpdated( wxSpinEvent& event )
 
 void MainFrame::OnGridLineWidth2SpinctrlTextUpdated( wxCommandEvent& /*event */)
 {
-	int value= atoi( this->m_grid_line_width_2_control->GetLabel().ToAscii());
+	int value= wxAtoi( this->m_grid_line_width_2_control->GetLabel() );
 	this->UpdateGridLineWidth( 1, value);
 }
 
@@ -2981,7 +2981,7 @@ void MainFrame::OnGridLineWidth3SpinctrlUpdated( wxSpinEvent& event )
 
 void MainFrame::OnGridLineWidth3SpinctrlTextUpdated( wxCommandEvent& /*event */)
 {
-	int value= atoi( this->m_grid_line_width_3_control->GetLabel().ToAscii());
+	int value= wxAtoi( this->m_grid_line_width_3_control->GetLabel() );
 	this->UpdateGridLineWidth( 2, value);
 }
 
@@ -3039,7 +3039,7 @@ void MainFrame::OnGridLineWidth4SpinctrlUpdated( wxSpinEvent& event )
 
 void MainFrame::OnGridLineWidth4SpinctrlTextUpdated( wxCommandEvent& /*event */)
 {
-	int value= atoi( this->m_grid_line_width_4_control->GetLabel().ToAscii());
+	int value= wxAtoi( this->m_grid_line_width_4_control->GetLabel() );
 	this->UpdateGridLineWidth( 3, value);
 }
 

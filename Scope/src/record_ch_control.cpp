@@ -168,7 +168,7 @@ void RecordChControl::OnRateDividerSpinctrlUpdated( wxSpinEvent& event)
 
 void RecordChControl::OnRateDividerSpinctrlTextUpdated( wxCommandEvent& /*event*/)
 {
-	int value= atoi( this->m_ch_rate_divider_control->GetLabel( ).ToAscii());
+	int value= wxAtoi( this->m_ch_rate_divider_control->GetLabel( ) );
 	this->UpdateRateDivider( value);
 }
 
