@@ -4,3 +4,13 @@ config.status
 src/wavedump
 doc/html/
 src/CAENScope
+configure
+missing
+Makefile.in
+src/missing
+src/Makefile.in
+src/install-sh
+src/depcomp
+aclocal.m4
+install-sh
+depcomp
