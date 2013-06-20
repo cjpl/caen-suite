@@ -3,3 +3,11 @@ config.log
 config.status
 src/wavedump
 doc/html/
+configure
+Makefile.in
+src/missing
+src/ltmain.sh
+src/Makefile.in
+src/install-sh
+src/depcomp
+aclocal.m4
