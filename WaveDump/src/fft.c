@@ -46,8 +46,59 @@
 #define M_PI 3.141592653
 #endif
 
+void getWindowing16(double *x, double *y, unsigned short *wave, int n, int WindowType) {
+    int i;
 
-int FFT (unsigned short *wave, double *fft, int ns, int WindowType)
+    // apply the windowing to the input vector
+    for(i=0; i<n; i++) {
+        y[i] = 0.0; // imaginary part of the input vector (always 0)
+        switch (WindowType) {
+            case HANNING_FFT_WINDOW  :  
+                x[i] = wave[i] * (0.5 - 0.5 * cos(2*M_PI * i/n));
+                break;
+            case HAMMING_FFT_WINDOW  :  
+                x[i] = wave[i] * (0.54 - 0.46 * cos(2*M_PI * i/n)); 
+                break;
+            case BLACKMAN_FFT_WINDOW  :  
+                x[i] = wave[i] * (2.4 * (0.42323 - 0.49755*cos(2*M_PI*i/n) + 0.07922*cos(4*M_PI*i/n)));
+                break;
+            case RECT_FFT_WINDOW  :  
+                x[i] = wave[i];
+                break;
+            default :  
+                x[i] = wave[i] * (2.4*(0.42323-0.49755*cos(2*M_PI*(i)/n)+0.07922*cos(4*M_PI*(i)/n)));
+                break;
+        }
+    }
+}
+
+void getWindowing8(double *x, double *y, unsigned char *wave, int n, int WindowType) {
+    int i;
+
+    // apply the windowing to the input vector
+    for(i=0; i<n; i++) {
+        y[i] = 0.0; // imaginary part of the input vector (always 0)
+        switch (WindowType) {
+            case HANNING_FFT_WINDOW  :  
+                x[i] = wave[i] * (0.5 - 0.5 * cos(2*M_PI * i/n));
+                break;
+            case HAMMING_FFT_WINDOW  :  
+                x[i] = wave[i] * (0.54 - 0.46 * cos(2*M_PI * i/n)); 
+                break;
+            case BLACKMAN_FFT_WINDOW  :  
+                x[i] = wave[i] * (2.4 * (0.42323 - 0.49755*cos(2*M_PI*i/n) + 0.07922*cos(4*M_PI*i/n)));
+                break;
+            case RECT_FFT_WINDOW  :  
+                x[i] = wave[i];
+                break;
+            default :  
+                x[i] = wave[i] * (2.4*(0.42323-0.49755*cos(2*M_PI*(i)/n)+0.07922*cos(4*M_PI*(i)/n)));
+                break;
+        }
+    }
+}
+
+int FFT (void *wave, double *fft, int ns, int WindowType, int SampleType)
 {
     int m,n,ip,le,le1,nm1,k,l,j,i,nv2;
     double u1,u2,u3,arg,c,s,t1,t2,t3,t4;
@@ -72,25 +123,14 @@ int FFT (unsigned short *wave, double *fft, int ns, int WindowType)
     y = malloc(n * sizeof(double));
 
     // apply the windowing to the input vector
-    for(i=0; i<n; i++) {
-        y[i] = 0.0; // imaginary part of the input vector (always 0)
-        switch (WindowType) {
-            case HANNING_FFT_WINDOW  :  
-                x[i] = wave[i] * (0.5 - 0.5 * cos(2*M_PI * i/n));
-                break;
-            case HAMMING_FFT_WINDOW  :  
-                x[i] = wave[i] * (0.54 - 0.46 * cos(2*M_PI * i/n)); 
-                break;
-            case BLACKMAN_FFT_WINDOW  :  
-                x[i] = wave[i] * (2.4 * (0.42323 - 0.49755*cos(2*M_PI*i/n) + 0.07922*cos(4*M_PI*i/n)));
-                break;
-            case RECT_FFT_WINDOW  :  
-                x[i] = wave[i];
-                break;
-            default :  
-                x[i] = wave[i] * (2.4*(0.42323-0.49755*cos(2*M_PI*(i)/n)+0.07922*cos(4*M_PI*(i)/n)));
-                break;
-        }
+    if(SampleType==SAMPLETYPE_UINT8)
+        getWindowing8(x, y, (unsigned char *)wave, n, WindowType);
+    else if(SampleType==SAMPLETYPE_UINT16)
+        getWindowing16(x, y, (unsigned short *)wave, n, WindowType);
+    else {
+        free(x);
+        free(y);
+        return -1;
     }
 
     // now the vectors x and y represents the input waveform expressed as imaginary numbers
@@ -167,6 +207,7 @@ int FFT (unsigned short *wave, double *fft, int ns, int WindowType)
     // free the buffers and return the number of points (only half FFT)
     free(x);
     free(y);
+
     return (n/2);
 }
 

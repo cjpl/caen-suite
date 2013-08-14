@@ -77,7 +77,8 @@ static long get_time()
 }
 
 void ClearPlot(void) {
-	fprintf(gnuplot, "clear\n");
+    if(gnuplot!=NULL)
+        fprintf(gnuplot, "clear\n");
 }
 
 int SetPlotOptions(void)

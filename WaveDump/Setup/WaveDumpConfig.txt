@@ -28,7 +28,7 @@ OPEN USB 0 0
 CORRECTION_LEVEL AUTO
 
 # GNUPLOT_PATH: path to gnuplot executable file
-GNUPLOT_PATH  "./"
+GNUPLOT_PATH  "/usr/bin/"
 
 # OUTPUT_FILE_FORMAT: output file can be either ASCII (column of decimal numbers) or binary 
 # (2 bytes per sample, except for Mod 721 and Mod 731 that is 1 byte per sample)
@@ -108,6 +108,7 @@ FPIO_LEVEL  NIM
 
 # ENABLE_INPUT: enable/disable one channel (or one group in the case of the Mod 740 and Mod 742)
 # options: YES, NO
+ENABLE_INPUT          NO
 
 # DC_OFFSET: DC offset adjust (DAC channel setting) in percent of the Full Scale. 
 # For model 740 and 742* the DC offset adjust is the same for all channel in the group
@@ -116,6 +117,7 @@ FPIO_LEVEL  NIM
 # 0:   analog input dynamic range = -Vpp/2 to +Vpp/2 (bipolar signals)*
 # options: -50.0 to 50.0  (floating point)
 #*NOTE: Ranges are different for 742 Model.....see GRP_CH_DC_OFFSET description
+DC_OFFSET              0
 
 # GRP_CH_DC_OFFSET dc_0, dc_1, dc_2, dc_3, dc_4, dc_5, dc_6, dc_7
 # Available only for model 742, allows to set different DC offset adjust for each channel (DAC channel setting) in percent of the Full Scale. 
@@ -126,10 +128,12 @@ FPIO_LEVEL  NIM
 
 # TRIGGER_THRESHOLD: threshold for the channel auto trigger (ADC counts)
 # options 0 to 2^N-1 (N=Number of bit of the ADC)
+TRIGGER_THRESHOLD      100
 
 # CHANNEL_TRIGGER: channel auto trigger settings. When enabled, the ch. auto trg. can be either 
 # propagated (ACQUISITION_AND_TRGOUT) or not (ACQUISITION_ONLY) through the TRGOUT
 # options: DISABLED, ACQUISITION_ONLY, ACQUISITION_AND_TRGOUT
+CHANNEL_TRIGGER        DISABLED
 
 # GROUP_TRG_ENABLE_MASK: this option is used only for the Models x740. These models have the
 # channels grouped 8 by 8; one group of 8 channels has a common trigger that is generated as
@@ -138,25 +142,25 @@ FPIO_LEVEL  NIM
 
 [0]
 ENABLE_INPUT           YES
-#DC_OFFSET              -5
+#DC_OFFSET             -5
 GRP_CH_DC_OFFSET       0,0,0,0,0,0,0,0 
-TRIGGER_THRESHOLD      2100
+#TRIGGER_THRESHOLD     100
 CHANNEL_TRIGGER        ACQUISITION_ONLY
 GROUP_TRG_ENABLE_MASK  01 
 
 [1]
 ENABLE_INPUT           YES
-#DC_OFFSET              0
+#DC_OFFSET             0
 GRP_CH_DC_OFFSET       0,0,0,0,0,0,0,0 
-TRIGGER_THRESHOLD      3500
+#TRIGGER_THRESHOLD      100
 CHANNEL_TRIGGER        ACQUISITION_ONLY
 GROUP_TRG_ENABLE_MASK  01
 
 [2]
 ENABLE_INPUT           NO
-#DC_OFFSET              10
+#DC_OFFSET             10
 GRP_CH_DC_OFFSET       -15,-10, -5, 0, 5, 10, 15, 20 
-TRIGGER_THRESHOLD      3000
+#TRIGGER_THRESHOLD      100
 CHANNEL_TRIGGER        DISABLED
 GROUP_TRG_ENABLE_MASK  00
 
@@ -164,35 +168,35 @@ GROUP_TRG_ENABLE_MASK  00
 ENABLE_INPUT           NO
 #DC_OFFSET              5
 GRP_CH_DC_OFFSET       -15,-10, -5, 0, 5, 10, 15, 20 
-TRIGGER_THRESHOLD      3000
+#TRIGGER_THRESHOLD      100
 CHANNEL_TRIGGER        DISABLED
 GROUP_TRG_ENABLE_MASK  00
 
 [4]
 ENABLE_INPUT           NO
 DC_OFFSET              -30
-TRIGGER_THRESHOLD      3000
+#TRIGGER_THRESHOLD      100
 CHANNEL_TRIGGER        DISABLED
 GROUP_TRG_ENABLE_MASK  00
 
 [5]
 ENABLE_INPUT           NO
 DC_OFFSET              -30
-TRIGGER_THRESHOLD      3000
+#TRIGGER_THRESHOLD      100
 CHANNEL_TRIGGER        DISABLED
 GROUP_TRG_ENABLE_MASK  00
 
 [6]
 ENABLE_INPUT           NO
 DC_OFFSET              -30
-TRIGGER_THRESHOLD      3000
+#TRIGGER_THRESHOLD      100
 CHANNEL_TRIGGER        DISABLED
 GROUP_TRG_ENABLE_MASK  00
 
 [7]
 ENABLE_INPUT           NO
 DC_OFFSET              -30
-TRIGGER_THRESHOLD      3000
+#TRIGGER_THRESHOLD      100
 CHANNEL_TRIGGER        DISABLED
 GROUP_TRG_ENABLE_MASK  00
 

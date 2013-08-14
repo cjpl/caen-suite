@@ -8,6 +8,10 @@
   WaveDump Release Notes
 
   -----------------------------------------------------------------------------
+  Rel. 3.5.3 - Fixed GNUPlot default path
+             - Compatibility for 8-bit FFT
+		     - Bug Fix on DES mode for V1731 boards
+			 - Bug Fix for Plot Group on x742 boards (Plot of disabled groups)
   Rel. 3.5.2 - Bug Fix on single event saving
 		     - Bug Fix on binary file saving for X742 boards
   Rel. 3.5.1 - Bug Fix on IRQ readout

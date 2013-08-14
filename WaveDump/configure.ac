@@ -2,9 +2,9 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.50)
-AC_INIT(wavedump, 3.2, support.computing@caen.it)
+AC_INIT(wavedump, 3.5.3, support.computing@caen.it)
 AC_CONFIG_AUX_DIR([src])
-AM_INIT_AUTOMAKE(wavedump, 3.5.1)
+AM_INIT_AUTOMAKE(wavedump, 3.5.3)
 AC_CONFIG_SRCDIR([inc/WaveDump.h])
 #AC_CONFIG_HEADER([config.h])
 
@@ -45,4 +45,8 @@ AC_FUNC_SELECT_ARGTYPES
 AC_CHECK_FUNCS([atexit gettimeofday memset pow select strstr])
 AC_CONFIG_FILES([Makefile
                  src/Makefile])
+AC_CHECK_PROG(HAVE_GNUPLOT, gnuplot, yes, no)
+if test "x$HAVE_GNUPLOT" = "xno"; then
+	AC_MSG_ERROR([*** Gnuplot not found])
+fi
 AC_OUTPUT

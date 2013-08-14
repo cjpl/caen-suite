@@ -37,8 +37,8 @@
 *  Default config file is "WaveDumpConfig.txt"
 ******************************************************************************/
 
-#define WaveDump_Release        "3.5.2_20130329"
-#define WaveDump_Release_Date   "Mar 2013"
+#define WaveDump_Release        "3.5.3_20130419"
+#define WaveDump_Release_Date   "Apr 2013"
 #define DBG_TIME
 
 #include <CAENDigitizer.h>
@@ -219,7 +219,7 @@ int ProgramDigitizer(int handle, WaveDumpConfig_t WDcfg, CAEN_DGTZ_BoardInfo_t B
     /* reset the digitizer */
     ret |= CAEN_DGTZ_Reset(handle);
 	if (ret != 0) {
-		printf("Error: Enable to reset digitizer.\nPlease reset digitizer manually then restart the program\n");
+		printf("Error: Unable to reset digitizer.\nPlease reset digitizer manually then restart the program\n");
 		return -1;
 	}
     /* execute generic write commands */
@@ -239,6 +239,8 @@ int ProgramDigitizer(int handle, WaveDumpConfig_t WDcfg, CAEN_DGTZ_BoardInfo_t B
     }
     ret |= CAEN_DGTZ_SetRecordLength(handle, WDcfg.RecordLength);
     ret |= CAEN_DGTZ_SetPostTriggerSize(handle, WDcfg.PostTrigger);
+    if(BoardInfo.FamilyCode != CAEN_DGTZ_XX742_FAMILY_CODE)
+        ret |= CAEN_DGTZ_GetPostTriggerSize(handle, &WDcfg.PostTrigger);
     ret |= CAEN_DGTZ_SetIOLevel(handle, WDcfg.FPIOtype);
     if( WDcfg.InterruptNumEvents > 0) {
         // Interrupt handling
@@ -292,12 +294,31 @@ int ProgramDigitizer(int handle, WaveDumpConfig_t WDcfg, CAEN_DGTZ_BoardInfo_t B
 			ret |= CAEN_DGTZ_SetGroupFastTriggerThreshold(handle,i,WDcfg.FTThreshold[i]);
 		}
 	}
+    
     if (ret)
         printf("Warning: errors found during the programming of the digitizer.\nSome settings may not be executed\n");
 
     return 0;
 }
 
+/*! \fn      void GoToNextEnabledGroup(WaveDumpRun_t *WDrun, WaveDumpConfig_t *WDcfg)
+*   \brief   selects the next enabled group for plotting
+*
+*   \param   WDrun:   Pointer to the WaveDumpRun_t data structure
+*   \param   WDcfg:   Pointer to the WaveDumpConfig_t data structure
+*/
+void GoToNextEnabledGroup(WaveDumpRun_t *WDrun, WaveDumpConfig_t *WDcfg) {
+    if ((WDcfg->EnableMask) && (WDcfg->Nch>8)) {
+        int orgPlotIndex = WDrun->GroupPlotIndex;
+        do {
+            WDrun->GroupPlotIndex = (++WDrun->GroupPlotIndex)%(WDcfg->Nch/8);
+        } while( !((1 << WDrun->GroupPlotIndex)& WDcfg->EnableMask));
+        if( WDrun->GroupPlotIndex != orgPlotIndex) {
+            printf("Plot group set to %d\n", WDrun->GroupPlotIndex);
+        }
+    }
+	ClearPlot();
+}
 
 /*! \fn      void CheckKeyboardCommands(WaveDumpRun_t *WDrun)
 *   \brief   check if there is a key pressed and execute the relevant command
@@ -342,7 +363,9 @@ void CheckKeyboardCommands(int handle, WaveDumpRun_t *WDrun, WaveDumpConfig_t *W
         switch(c) {
             case 'g' :
                 // Update the group plot index
-                if ((WDcfg->EnableMask) && (WDcfg->Nch>8)) {
+                if ((WDcfg->EnableMask) && (WDcfg->Nch>8))
+                    GoToNextEnabledGroup(WDrun, WDcfg);
+                /*if ((WDcfg->EnableMask) && (WDcfg->Nch>8)) {
                     int orgPlotIndex = WDrun->GroupPlotIndex;
                     do {
                         WDrun->GroupPlotIndex = (++WDrun->GroupPlotIndex)%(WDcfg->Nch/8);
@@ -351,7 +374,7 @@ void CheckKeyboardCommands(int handle, WaveDumpRun_t *WDrun, WaveDumpConfig_t *W
                         printf("Plot group set to %d\n", WDrun->GroupPlotIndex);
                     }
                 }
-				ClearPlot();
+				ClearPlot();*/
                 break;
             case 'q' :
                 WDrun->Quit = 1;
@@ -863,6 +886,24 @@ Restart:
         goto QuitProgram;
     }
 
+    // Select the next enabled group for plotting
+    if ((WDcfg.EnableMask) && (WDcfg.Nch>8))
+        if( ((WDcfg.EnableMask>>WDrun.GroupPlotIndex)&0x1)==0 )
+            GoToNextEnabledGroup(&WDrun, &WDcfg);
+
+    // Read again the board infos, just in case some of them were changed by the programming
+    // (like, for example, the TSample and the number of channels if DES mode is changed)
+    ret = CAEN_DGTZ_GetInfo(handle, &BoardInfo);
+    if (ret) {
+        ErrCode = ERR_BOARD_INFO_READ;
+        goto QuitProgram;
+    }
+    ret = GetMoreBoardInfo(handle,BoardInfo, &WDcfg);
+    if (ret) {
+        ErrCode = ERR_INVALID_BOARD_TYPE;
+        goto QuitProgram;
+    }
+
     // Allocate memory for the event data and readout buffer
     if(WDcfg.Nbit == 8)
         ret = CAEN_DGTZ_AllocateEvent(handle, (void**)&Event8);
@@ -1142,7 +1183,13 @@ InterruptTimeout:
                             int FFTns;
                             strcpy(PlotVar->Title, "FFT");
                             PlotVar->DataType = PLOT_DATA_DOUBLE;
-                            FFTns = FFT(Event16->DataChannel[absCh], PlotVar->TraceData[Tn], Event16->ChSize[absCh], HANNING_FFT_WINDOW);
+                            if(WDcfg.Nbit == 8)
+                                FFTns = FFT(Event8->DataChannel[absCh], PlotVar->TraceData[Tn], Event8->ChSize[absCh], HANNING_FFT_WINDOW, SAMPLETYPE_UINT8);
+                            else if (BoardInfo.FamilyCode == CAEN_DGTZ_XX742_FAMILY_CODE) {
+                                // TODO, FFT plot to be handled for XX742
+                            }
+                            else
+                                FFTns = FFT(Event16->DataChannel[absCh], PlotVar->TraceData[Tn], Event16->ChSize[absCh], HANNING_FFT_WINDOW, SAMPLETYPE_UINT16);
                             PlotVar->Xscale = (1000/WDcfg.Ts)/(2*FFTns);
                             PlotVar->TraceSize[Tn] = FFTns;
                         } else if (WDrun.PlotType == PLOT_HISTOGRAM) {

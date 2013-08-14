@@ -4,4 +4,4 @@ wavedump_SOURCES=WaveDump.c WDconfig.c WDplot.c X742CorrectionRoutines.c fft.c k
 wavedump_LDADD = -lCAENComm -lCAENDigitizer -lm -lpthread
 INCLUDES = -I../inc
 AM_CFLAGS=  -fPIC
-dist_data_DATA=WaveDumpConfig.txt
+dist_data_DATA=../Setup/WaveDumpConfig.txt

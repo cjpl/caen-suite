@@ -26,6 +26,9 @@
 #define BLACKMAN_FFT_WINDOW   2
 #define RECT_FFT_WINDOW       3
 
+#define SAMPLETYPE_UINT8      0
+#define SAMPLETYPE_UINT16     1
+
 /*
   Input Parameters: 
   --------------------------------------------------------------------------
@@ -39,6 +42,6 @@
   Number of pointf of the output vector fft
 */
 
-int FFT (unsigned short *wave, double *fft, int ns, int WindowType);
+int FFT (void *wave, double *fft, int ns, int WindowType, int SampleType);
 
 #endif
