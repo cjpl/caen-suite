@@ -16,37 +16,6 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
  *
- *
- *   TODO
- *   - Precise identification of the device based on strings.
- *   
- * Changelog:
- *   Jan 2013 Rev 1.0
- *     - Removed back compatibility with kernel 2.4
- *     - add support for the dynamic USB minor allocation
- *   Dec  2011 Rev 1.0
- *     - Porting to kernel 3.1.5 
- *   May  2011 Rev 0.9
- *     - Porting to kernel 2.6.38 
- *   January  2010 Rev 0.8
- *     - Precise identification of the devices
- *   January  2009 Rev 0.7
- *     - BugFix: signal handling on read function 
- *   July 2008 rev 0.6
- *     - Added recovery from stall and overrun condition 
- *   March 2007 rev 0.5
- *     - Port to 2.6.18 kernel: dev_fs no more supported
- *   September 2006 rev 0.4
- *     - Port to 2.6.15 kernel: struct usb_driver::owner field is no more supported
- *     - Port to 64-bit architectures : no changes (tested on 2.6.15-1.2054_FC5 SMP x86_64)
- *     - Unlocked ioctl() method alleviates system performacne problems ( Linux Version>= 2.6.11)
- *     - BugFix: disconnect_v1718 tried to down the same lock twice ( Linux Version >= 2.5.0 )
- *   May 2006  rev 0.3
- *     - Porting to 2.6.15 kernel: usb_class_driver::mode field is no more supported
- *   January 2006  rev 0.2
- *     - Porting to 2.6 kernel
- *     - V1718_IOCTL_REV: get driver revision
- *     - !!! WARNING !!! conficts with usbtest driver. Remove it!
  */
 
 #undef DEBUG  
@@ -69,7 +38,7 @@
 /*
  * Version Information
  */
-#define DRIVER_VERSION "1.1"
+#define DRIVER_VERSION "1.2"
 #define DRIVER_AUTHOR "CAEN Computing Division <support.computing@caen.it>"
 #define DRIVER_DESC "CAEN USB driver"
 
@@ -97,7 +66,6 @@
 	#define USB_ST_NOERROR 0
 	#define USB_ST_CRC (-EILSEQ)
 	#define USB_ST_BITSTUFF (-EPROTO)
-	// #define USB_ST_NORESPONSE (-ETIMEDOUT) /* device not responding/handshaking */
 	#define USB_ST_DATAOVERRUN (-EOVERFLOW)
 	#define USB_ST_DATAUNDERRUN		(-EREMOTEIO)
 	#define USB_ST_BUFFEROVERRUN (-ECOMM)
@@ -290,6 +258,14 @@ ioctl_v1718(struct inode *inode, struct file *file, unsigned int cmd,
                         break;
                 }
 			}
+	        break;
+		case V1718_IOCTL_REBOOTB:
+			ret =	usb_control_msg(v1718->v1718_dev, usb_sndctrlpipe(v1718->v1718_dev,0),0xB0, 0x20,1, 0, NULL, 0, 1 * HZ);
+			ret |= 	usb_control_msg(v1718->v1718_dev, usb_sndctrlpipe(v1718->v1718_dev,0),0xB0, 0x20,0, 0, NULL, 0, 1 * HZ);
+	        break;
+		case V1718_IOCTL_REBOOTF:
+			ret =	usb_control_msg(v1718->v1718_dev, usb_sndctrlpipe(v1718->v1718_dev,0),0xB0, 0x20,3, 0, NULL, 0, 1 * HZ);
+			ret |=	usb_control_msg(v1718->v1718_dev, usb_sndctrlpipe(v1718->v1718_dev,0),0xB0, 0x20,2, 0, NULL, 0, 1 * HZ);
 	        break;
 		default:
 			ret= -ENOTTY;

@@ -8,6 +8,7 @@
 
   -----------------------------------------------------------------------------
 
+  Rel. 1.2  - Jun 	2013
   Rel. 1.1  - Jan 	2013
   Rel. 1.0  - Dec	2012
   Rel. 0.9  - Dec 	2011
@@ -39,6 +40,9 @@
   - CAEN USB Card: V1718 VME-USB2.0 Bridge, DT5720-N6720/24/40/42/51/61 Digitizers
   - Linux kernel 2.6/3.6 and GNU C/C++ compiler
 
+   What's New in Rel. 1.2
+  --------------------------
+  - implemented two new IOCTL commands to restart hardware (DT) from standard/backup flash memory
 
    What's New in Rel. 1.1
   --------------------------

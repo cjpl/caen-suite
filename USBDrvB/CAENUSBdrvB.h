@@ -26,6 +26,8 @@
 #define V1718_MAGIC                     'U'
 
 #define V1718_IOCTL_REV                 _IOWR(V1718_MAGIC, 1, v1718_rev_t)
+#define V1718_IOCTL_REBOOTB             _IOWR(V1718_MAGIC, 2, v1718_rev_t)
+#define V1718_IOCTL_REBOOTF             _IOWR(V1718_MAGIC, 3, v1718_rev_t)
 
 
 /*
