@@ -518,7 +518,7 @@ typedef enum
     *  The following values are valid for the following DPP-CI  *
     *  Firmwares:                                               *
     *       x720 Boards: AMC_REL <= 130.20                      *
-    *  For newer firmwares, use the values marked with 'R21' in *
+    *  For newer firmwares, use the values marked with 'R22' in *
     *  the name.                                                *
     *  WARNING WARNING WARNING WARNING WARNING WARNING WARNING  *
     ************************************************************/
@@ -535,11 +535,11 @@ typedef enum
     *  For older firmwares, use the values above.               *
     *  WARNING WARNING WARNING WARNING WARNING WARNING WARNING  *
     ************************************************************/
-    CAEN_DGTZ_DPP_CI_DIGITALPROBE1_R21_ExtTrg       = 4L,
-    CAEN_DGTZ_DPP_CI_DIGITALPROBE1_R21_OverThr      = 5L,
-    CAEN_DGTZ_DPP_CI_DIGITALPROBE1_R21_TrigOut      = 6L,
-    CAEN_DGTZ_DPP_CI_DIGITALPROBE1_R21_CoincWin     = 7L,
-    CAEN_DGTZ_DPP_CI_DIGITALPROBE1_R21_Coincidence  = 9L,
+    CAEN_DGTZ_DPP_CI_DIGITALPROBE1_R22_ExtTrg       = 4L,
+    CAEN_DGTZ_DPP_CI_DIGITALPROBE1_R22_OverThr      = 5L,
+    CAEN_DGTZ_DPP_CI_DIGITALPROBE1_R22_TrigOut      = 6L,
+    CAEN_DGTZ_DPP_CI_DIGITALPROBE1_R22_CoincWin     = 7L,
+    CAEN_DGTZ_DPP_CI_DIGITALPROBE1_R22_Coincidence  = 9L,
 } CAEN_DGTZ_DPP_CI_DigitalProbe1_t;
 
 /*! 
@@ -553,7 +553,7 @@ typedef enum
     *  The following values are valid for the following DPP-CI  *
     *  Firmwares:                                               *
     *       x720 Boards: AMC_REL <= 130.20                      *
-    *  For newer firmwares, use the values marked with 'R21' in *
+    *  For newer firmwares, use the values marked with 'R22' in *
     *  the name.                                                *
     *  WARNING WARNING WARNING WARNING WARNING WARNING WARNING  *
     ************************************************************/
@@ -598,7 +598,7 @@ typedef enum
     *  Firmwares:                                               *
     *       x720 Boards: AMC_REL <= 131.5                       *
     *       x751 Boards: AMC_REL <= 132.5                       *
-    *  For newer firmwares, use the values marked with 'R4' in  *
+    *  For newer firmwares, use the values marked with 'R6' in  *
     *  the name.                                                *
     *  WARNING WARNING WARNING WARNING WARNING WARNING WARNING  *
     ************************************************************/
@@ -648,7 +648,7 @@ typedef enum
     *  Firmwares:                                               *
     *       x720 Boards: AMC_REL <= 131.5                       *
     *       x751 Boards: AMC_REL <= 132.5                       *
-    *  For newer firmwares, use the values marked with 'R4' in  *
+    *  For newer firmwares, use the values marked with 'R6' in  *
     *  the name.                                                *
     *  WARNING WARNING WARNING WARNING WARNING WARNING WARNING  *
     ************************************************************/

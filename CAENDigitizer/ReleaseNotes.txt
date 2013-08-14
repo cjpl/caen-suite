@@ -8,7 +8,7 @@
 
   -----------------------------------------------------------------------------
 
-  Rel. 2.3.1  - April 2013
+  Rel. 2.3.2  - May 2013
  
   -----------------------------------------------------------------------------
  
@@ -27,6 +27,13 @@
  
   - Windows 2000/XP/Vista/7 or Linux Kernel 2.4/2.6
   - CAENComm library version 1.01 or above.  
+  
+  What's New in Rel. 2.3.2
+  --------------------------
+    - Bugfix for DPP-PSD probes for x751 boards with AMC FW >= 132.6
+	- Bugfix for DPP-PHA Baseline HoldOff
+	- Bugfix for GetPostTriggerSize for x742 boards
+	- Mangement of DPP Parameter Ranges for DPP-PSD for x751 boards
   
   What's New in Rel. 2.3.1
   --------------------------
