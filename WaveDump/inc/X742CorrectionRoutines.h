@@ -11,9 +11,9 @@
 #define MAIN_MEM_PAGE_PROG_TH_BUF1  0x0082   
 
 typedef struct {
-	int16_t	 	cell[MAX_X742_CHANNELS+1][1024];
-	int8_t	 	nsample[MAX_X742_CHANNELS+1][1024];
-	float		time[1024];
+  int16_t    cell[MAX_X742_CHANNELS+1][1024];
+  int8_t     nsample[MAX_X742_CHANNELS+1][1024];
+  float	     time[1024];
 } DataCorrection_t;
 
 int32_t LoadCorrectionTables(int handle, DataCorrection_t *Table, uint8_t group, uint32_t frequency);
