@@ -1,0 +1,50 @@
+  -----------------------------------------------------------------------------
+
+                   --- CAEN SpA - Computing Systems Division --- 
+
+  -----------------------------------------------------------------------------
+
+  CAEN V1x90 Release Notes
+
+  -----------------------------------------------------------------------------
+
+  Rel. 1.0  -    June  2008
+  Rel. 1.1  -    July  2013
+
+  ----------------------------------------------------------------------------- 
+
+  Description
+  -----------
+
+  This document is updated for every official release of the CAEN V1x90 tool 
+  and it contains various information specific to this software which can not
+  be found in the User's Manual, available together with the software or on 
+  the CAEN web site: www.caen.it.
+
+
+ System Requirements
+ -------------------
+ 
+  - CAENVME Library
+  - Linux kernel 2.4/2.6 and GNU C/C++ compiler
+
+  
+  What's New in Rel. 1.1
+  --------------------------
+    - Bugfix: fix output file for V1290 model
+
+  What's New in Rel. 1.0
+  --------------------------
+
+   New Features and Important Notes
+   --------------------------------
+    - SDK rev. 1.1:
+       -- Created standalone project branching from CAENVMETool 1.5
+
+   
+  How to get support
+  ------------------
+
+  Our Software Support Group is available for questions, support and any other 
+  software related issue concerning CAEN products; for software support
+  visit the page www.caen.it/computing/support.php.
