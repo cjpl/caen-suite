@@ -1,6 +1,6 @@
 
 /*
- * CAEN USB driver - 1.1
+ * CAEN USB driver - 1.4
  *
  * Written by CAEN SpA (support.computing@caen.it) - CAEN SpA
  *
@@ -38,7 +38,7 @@
 /*
  * Version Information
  */
-#define DRIVER_VERSION "1.2"
+#define DRIVER_VERSION "1.4"
 #define DRIVER_AUTHOR "CAEN Computing Division <support.computing@caen.it>"
 #define DRIVER_DESC "CAEN USB driver"
 
@@ -357,8 +357,8 @@ write_v1718(struct file *file, const char *buffer,
 					 usb_sndbulkpipe(v1718->v1718_dev, 2),
 					 obuf, thistime, &partial, 1 * HZ);     // TEMP - 1 sec basta?
 
-			dbg("write stats: result:%d thistime:%lu partial:%u",
-			     result, thistime, partial);
+			//printk("write stats: result:%d thistime:%lu partial:%u",
+			//     result, thistime, partial);
 
 			if (result == USB_ST_TIMEOUT) {	
 				if (!maxretry--) {
@@ -433,8 +433,8 @@ read_v1718(struct file *file, char *buffer, size_t count, loff_t * ppos)
 				      ibuf, this_read, &partial,
 				      (int) (HZ * 1)); 
 
-		dbg("read stats: result:%d this_read:%u partial:%u",
-		       result, this_read, partial);
+		//printk("read stats: result:%d this_read:%u partial:%u",
+		//       result, this_read, partial);
 		if (partial) {
 			count = this_read = partial;
 		} else {
@@ -459,7 +459,7 @@ read_v1718(struct file *file, char *buffer, size_t count, loff_t * ppos)
 				{
 					int count_retry= 100;
 					do {
-						printk( "DATAOVERRUN\n");
+						//printk( "DATAOVERRUN\n");
 						usb_clear_halt( v1718->v1718_dev, 6);
 						if( usb_bulk_msg(v1718->v1718_dev,
 						      usb_rcvbulkpipe(v1718->v1718_dev, 6),
@@ -547,11 +547,13 @@ static int probe_v1718(struct usb_interface *intf,
 		case 0x0001:
 			printk(KERN_INFO "CAEN NIM Waveform Digitizers Carrier found at address %d\n", dev->devnum);
 			break;
-		case 0x1002:
+		case 0x0002:
 			printk(KERN_INFO "CAEN V1718 found at address %d\n", dev->devnum);
+		case 0x0005:
+			printk(KERN_INFO "CAEN DT55xx HV Desktop Power Supply Carrier found at address %d\n", dev->devnum);
 			break;
 		default:
-			printk(KERN_INFO "CAEN V1718 found at address %d\n", dev->devnum);
+			printk(KERN_INFO "CAEN V1718/(N957) found at address %d\n", dev->devnum);
 			break;
 	}
 	down(&minor_table_mutex);
@@ -588,13 +590,13 @@ static int probe_v1718(struct usb_interface *intf,
 		printk("probe: Not enough memory for the output buffer\n");
 		goto error;
 	}
-	dbg("probe: obuf address:%p", v1718->obuf);
+	printk("probe: obuf address:%p", v1718->obuf);
 
 	if (!(v1718->ibuf = (char *) kmalloc(IBUF_SIZE, GFP_KERNEL))) {
 		printk("probe: Not enough memory for the input buffer\n");
 		goto error;
 	}
-	dbg("probe: ibuf address:%p", v1718->ibuf);
+	printk("probe: ibuf address:%p", v1718->ibuf);
 
 	usb_set_intfdata (intf, v1718);
 #if LINUX_VERSION_CODE <= VERSION(2,6,32)
@@ -650,6 +652,7 @@ static struct usb_device_id v1718_table [] = {
 	{ USB_DEVICE(0x0547, 0x1002) }, 		/* CAEN V1718 */
 	{ USB_DEVICE(0x21e1, 0x0000) }, 		
 	{ USB_DEVICE(0x21e1, 0x0001) }, 
+	{ USB_DEVICE(0x21e1, 0x0005) }, 
 	{ }						/* Terminating entry */
 };
 

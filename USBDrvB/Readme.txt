@@ -11,7 +11,7 @@
 
         Package for Linux kernels 2.6, 3.6
 
-        Jan 2013
+        January 2014
 
 
  The complete documentation can be found in the User's Manual on CAEN's web
