@@ -1,20 +1,49 @@
-#include <string.h>
-#include "CAENComm.h"
-#include "CAENDigitizer.h"
+/******************************************************************************
+*
+* CAEN SpA - Front End Division
+* Via Vetraia, 11 - 55049 - Viareggio ITALY
+* +390594388398 - www.caen.it
+*
+***************************************************************************//**
+* \note TERMS OF USE:
+* This program is free software; you can redistribute it and/or modify it under
+* the terms of the GNU General Public License as published by the Free Software
+* Foundation. This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. The user relies on the
+* software, documentation and results solely at his own risk.
+******************************************************************************/
 
-#define MAX_X742_CHANNELS		0x08
-#define MAX_X742_CHANNEL_SIZE				9
-#define FLASH(n)          (0x10D0 | ( n << 8))  // base address of the flash memory (first byte)
-#define SEL_FLASH(n)      (0x10CC | ( n << 8))  // flash enable/disable 
-#define STATUS(n)         (0x1088 | ( n << 8))  // status register
-#define MAIN_MEM_PAGE_READ          0x00D2      
-#define MAIN_MEM_PAGE_PROG_TH_BUF1  0x0082   
+#ifndef __X742_CORRECTION_ROUTINES_H
+#define __X742_CORRECTION_ROUTINES_H
 
-typedef struct {
-	int16_t	 	cell[MAX_X742_CHANNELS+1][1024];
-	int8_t	 	nsample[MAX_X742_CHANNELS+1][1024];
-	float		time[1024];
-} DataCorrection_t;
+#include "CAENDigitizerType.h"
 
-int32_t LoadCorrectionTables(int handle, DataCorrection_t *Table, uint8_t group, uint32_t frequency);
-void ApplyDataCorrection(uint32_t group, int CorrectionLevelMask, CAEN_DGTZ_DRS4Frequency_t frequency, CAEN_DGTZ_X742_GROUP_t *data, DataCorrection_t *Table);
+/*! \brief   Corrects 'data' depending on the informations contained in 'CTable'
+*
+*   \param   CTable              :  Pointer to the Table containing the Data Corrections
+*   \param   frequency           :  The operational Frequency of the board
+*   \param   CorrectionLevelMask :  Mask of Corrections to be applied
+*   \param   data                :  Data to be corrected
+*/
+void ApplyDataCorrection(CAEN_DGTZ_DRS4Correction_t* CTable, CAEN_DGTZ_DRS4Frequency_t frequency, int CorrectionLevelMask, CAEN_DGTZ_X742_GROUP_t *data);
+
+/*! \brief   Write the correction table of a x742 boards into the output files
+*
+*   \param   Filename of output file
+*   \param   Group Mask of Tables to be saved
+*   \param   Pointer to the DataCorrection group tables
+*/
+int SaveCorrectionTables(char *outputFileName, uint32_t groupMask, CAEN_DGTZ_DRS4Correction_t *tables);
+
+/*! \brief   Reads the correction table of a x742 boards from txt files
+*
+*   \param   Base Filename of input file. Actual filenames loaded will be:
+*               a) baseInputFileName + "_cell.txt"
+*               b) baseInputFileName + "_nsample.txt"
+*               c) baseInputFileName + "_time.txt"
+*   \param   DataCorrection table to be filled
+*/
+int LoadCorrectionTable(char *baseInputFileName, CAEN_DGTZ_DRS4Correction_t *tb);
+
+#endif // __X742_CORRECTION_ROUTINES_H

@@ -22,10 +22,34 @@ OPEN USB 0 0
 #OPEN PCI 0 0 32100000
 
 # Correction Level to use with x742 Digitizers Family
+# Syntax: CORRECTION_LEVEL <CORR_MASK> <CUST_TABLE_MASK> <FILENAME1> <FILENAME2> ...
 # Values:
-# AUTO
-# 0 -> 7
+# CORR_MASK:
+#   AUTO: Uses Automatic Corrections
+#   0 -> 7: Corrections Mask
+# CUST_TABLE_MASK (Only if CORR_MASK != AUTO):
+#   AUTO: Reads the correction tables from digitizer flash
+#   0 -> 16: Specifies the GroupMask which should use the tables specified in the following files
+# FILENAME<i>: Base Filename of the file which contains the custom correction tables for group <i>.
+#              The files which will be loaded will have the following names:
+#                   a) baseInputFileName + "_cell.txt"
+#                   b) baseInputFileName + "_nsample.txt"
+#                   c) baseInputFileName + "_time.txt"
+# Examples:
+# Automatic Corrections:
+# CORRECTION_LEVEL AUTO
+# Manual Corrections with Digitizer's Flash tables:
+# CORRECTION_LEVEL 7 AUTO
+# Manual Corrections with Digitizer's Flash tables for group 1 and with custom tables for the other groups:
+# CORRECTION_LEVEL 7 13 Table_gr0 Table_gr2 Table_gr3
 CORRECTION_LEVEL AUTO
+
+# Set the DRS4 Chip Frequency (for X742 boards only)
+# Values:
+#   0 = 5 GHz
+#   1 = 2.5 GHz
+#   2 = 1 GHz
+DRS4_FREQUENCY 0
 
 # GNUPLOT_PATH: path to gnuplot executable file
 GNUPLOT_PATH  "/usr/bin/"
@@ -58,23 +82,27 @@ ENABLE_DES_MODE  NO
 # options: DISABLED, ACQUISITION_ONLY, ACQUISITION_AND_TRGOUT
 EXTERNAL_TRIGGER   ACQUISITION_ONLY
 
-# FAST_TRIGGER: fast trigger input settings. ONLY FOR 742 MODELS. When enabled, the fast trigger is used for the data acquisition 
+# FAST_TRIGGER: fast trigger input settings. ONLY FOR 742 MODELS. When enabled, the fast trigger is used
+# for the data acquisition 
 # options: DISABLED, ACQUISITION_ONLY
 FAST_TRIGGER   ACQUISITION_ONLY	
 #FAST_TRIGGER   DISABLED	
 
-# FAST_TRIGGER_DIGITIZING: ONLY FOR 742 MODELS. If enabled the fast trigger signal is digitized and it is present in data readout as channel n.8 for each group.
+# FAST_TRIGGER_DIGITIZING: ONLY FOR 742 MODELS. If enabled the fast trigger signal is digitized and it is
+# present in data readout as channel n.8 for each group.
 # options: YES, NO
 ENABLED_FAST_TRIGGER_DIGITIZING		YES		
 #ENABLED_FAST_TRIGGER_DIGITIZING		NO	
 
-# MAX_NUM_EVENTS_BLT: maximum number of events to read out in one Block Transfer. High values corresponds to 
+# MAX_NUM_EVENTS_BLT: maximum number of events to read out in one Block Transfer. Higher values may lead
+# to higher readout bandwidth, requiring more memory allocation for the block transfer.
 # options: 1 to 1023
 MAX_NUM_EVENTS_BLT   1
 
 # POST_TRIGGER: post trigger size in percent of the whole acquisition window
 # options: 0 to 100
-# On models 742 there is a delay of about 35nsec on signal Fast Trigger TR; the post trigger is added to this delay  
+# On models 742 there is a delay of about 35nsec on signal Fast Trigger TR; the post trigger is added to
+# this delay  
 POST_TRIGGER  20
 
 # TRIGGER_EDGE: decides whether the trigger occurs on the rising or falling edge of the signal
@@ -83,20 +111,25 @@ TRIGGER_EDGE  FALLING
 
 # USE_INTERRUPT: number of events that must be ready for the readout when the IRQ is asserted.
 # Zero means that the interrupts are not used (readout runs continuously)
+# values: 0 to 1023
 USE_INTERRUPT 0
 
 # FPIO_LEVEL: type of the front panel I/O LEMO connectors 
 # options: NIM, TTL
 FPIO_LEVEL  NIM
 
-# WRITE_REGISTER: generic write register access. This command allows the user to have a direct write access to the
-# registers of the board. NOTE: all the direct write accesses are executed before the other setting, thus it might
-# happen that one specific setting overwrites the register content.
-# Syntax: WRITE_REGISTER ADDRESS DATA, where ADDRESS is the address offset of the register (16 bit hex)
-# and DATA is the value being written (31 bit hex)
-# Example: WRITE_REGISTER  1080  00000010  # Set the threshold of channel 0 to 16 ADC counts (hex 10)
-#  WRITE_REGISTER  8168  8  
-
+# WRITE_REGISTER: generic write register access. This command allows the user to have a direct write access
+# to the registers of the board. NOTE: all the direct write accesses are executed AFTER the other settings,
+# thus it might happen that the direct write overwrites a specific setting.
+# To avoid this use the right "MASK".
+# Syntax: WRITE_REGISTER ADDRESS DATA MASK, where ADDRESS is the address offset of the register (16 bit hex), DATA
+# is the value being written (32 bit hex) and MASK is the bitmask to be used for DATA masking.
+# Example: Set only bit [8] of register 1080 to 1, leaving the other bits to their previous value
+# WRITE_REGISTER 1080 0100 0100
+# Example: Set only bit [8] of register 1080 to 0, leaving the other bits to their previous value
+# WRITE_REGISTER 1080 0000 0100
+# Example: Set register 1080 to the value of 0x45:
+# WRITE_REGISTER 1080 45 FFFFFFFF
 
 # ----------------------------------------------------------------
 # Individual Settings 
@@ -142,64 +175,61 @@ CHANNEL_TRIGGER        DISABLED
 
 [0]
 ENABLE_INPUT           YES
-#DC_OFFSET             -5
-GRP_CH_DC_OFFSET       0,0,0,0,0,0,0,0 
-#TRIGGER_THRESHOLD     100
+DC_OFFSET              0
+#GRP_CH_DC_OFFSET       0,0,0,0,0,0,0,0 
+TRIGGER_THRESHOLD      100
 CHANNEL_TRIGGER        ACQUISITION_ONLY
-GROUP_TRG_ENABLE_MASK  01 
+#GROUP_TRG_ENABLE_MASK  01
 
 [1]
 ENABLE_INPUT           YES
-#DC_OFFSET             0
-GRP_CH_DC_OFFSET       0,0,0,0,0,0,0,0 
-#TRIGGER_THRESHOLD      100
+DC_OFFSET              0
+#GRP_CH_DC_OFFSET       0,0,0,0,0,0,0,0 
+TRIGGER_THRESHOLD      100
 CHANNEL_TRIGGER        ACQUISITION_ONLY
-GROUP_TRG_ENABLE_MASK  01
+#GROUP_TRG_ENABLE_MASK  01
 
 [2]
 ENABLE_INPUT           NO
-#DC_OFFSET             10
-GRP_CH_DC_OFFSET       -15,-10, -5, 0, 5, 10, 15, 20 
-#TRIGGER_THRESHOLD      100
-CHANNEL_TRIGGER        DISABLED
-GROUP_TRG_ENABLE_MASK  00
 
 [3]
 ENABLE_INPUT           NO
-#DC_OFFSET              5
-GRP_CH_DC_OFFSET       -15,-10, -5, 0, 5, 10, 15, 20 
-#TRIGGER_THRESHOLD      100
-CHANNEL_TRIGGER        DISABLED
-GROUP_TRG_ENABLE_MASK  00
 
 [4]
 ENABLE_INPUT           NO
-DC_OFFSET              -30
-#TRIGGER_THRESHOLD      100
-CHANNEL_TRIGGER        DISABLED
-GROUP_TRG_ENABLE_MASK  00
 
 [5]
 ENABLE_INPUT           NO
-DC_OFFSET              -30
-#TRIGGER_THRESHOLD      100
-CHANNEL_TRIGGER        DISABLED
-GROUP_TRG_ENABLE_MASK  00
 
 [6]
 ENABLE_INPUT           NO
-DC_OFFSET              -30
-#TRIGGER_THRESHOLD      100
-CHANNEL_TRIGGER        DISABLED
-GROUP_TRG_ENABLE_MASK  00
 
 [7]
 ENABLE_INPUT           NO
-DC_OFFSET              -30
-#TRIGGER_THRESHOLD      100
-CHANNEL_TRIGGER        DISABLED
-GROUP_TRG_ENABLE_MASK  00
 
+[8]
+ENABLE_INPUT           NO
+
+[9]
+ENABLE_INPUT           NO
+
+[10]
+ENABLE_INPUT           NO
+
+[11]
+ENABLE_INPUT           NO
+
+[12]
+ENABLE_INPUT           NO
+
+[13]
+ENABLE_INPUT           NO
+
+[14]
+ENABLE_INPUT           NO
+
+[15]
+ENABLE_INPUT           NO
 
 # ----------------------------------------------------------------
 # Custom Setting for Model 742 
@@ -232,10 +262,9 @@ GROUP_TRG_ENABLE_MASK  00
 # 	TRIGGER_THRESHOLD 26214
 
 [TR0]
-DC_OFFSET              31768	
-TRIGGER_THRESHOLD      31750	
+DC_OFFSET              32768	
+TRIGGER_THRESHOLD      20934	
 
 [TR1]
 DC_OFFSET              32768
 TRIGGER_THRESHOLD      20934
-

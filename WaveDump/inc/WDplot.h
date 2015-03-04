@@ -35,7 +35,8 @@
 #endif
 
 
-#define MAX_NUM_TRACES    8+1     /* Maximum number of traces in a plot */
+//#define MAX_NUM_TRACES    8+1     /* Maximum number of traces in a plot */
+#define MAX_NUM_TRACES    MAX_V1730_CHANNEL_SIZE     /* Maximum number of traces in a plot */
 
 typedef enum {
     PLOT_DATA_UINT8		= 0,
@@ -73,4 +74,4 @@ int IsPlotterBusy(void);
 int ClosePlotter(void);
 void ClearPlot(void);
 
-#endif
+#endif // __WDPLOT_H

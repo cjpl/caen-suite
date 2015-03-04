@@ -1,22 +1,26 @@
+/******************************************************************************
+*
+* CAEN SpA - Front End Division
+* Via Vetraia, 11 - 55049 - Viareggio ITALY
+* +390594388398 - www.caen.it
+*
+***************************************************************************//**
+* \note TERMS OF USE:
+* This program is free software; you can redistribute it and/or modify it under
+* the terms of the GNU General Public License as published by the Free Software
+* Foundation. This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. The user relies on the
+* software, documentation and results solely at his own risk.
+******************************************************************************/
+
+#include "X742CorrectionRoutines.h"
+#include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
-#include "CAENComm.h"
-#include "CAENDigitizer.h"
 
-#define MAX_X742_CHANNELS		0x08
-#define MAX_X742_CHANNEL_SIZE				9
-#define FLASH(n)          (0x10D0 | ( n << 8))  // base address of the flash memory (first byte)
-#define SEL_FLASH(n)      (0x10CC | ( n << 8))  // flash enable/disable 
-#define STATUS(n)         (0x1088 | ( n << 8))  // status register
-#define MAIN_MEM_PAGE_READ          0x00D2      
-#define MAIN_MEM_PAGE_PROG_TH_BUF1  0x0082   
-
-typedef struct {
-	int16_t	 	cell[MAX_X742_CHANNELS+1][1024];
-	int8_t	 	nsample[MAX_X742_CHANNELS+1][1024];
-	float		time[1024];
-} DataCorrection_t;
-
-static DataCorrection_t	CTable[4][3];
+#define MAX_READ_CHAR               1000
+#define MAX_BASE_INPUT_FILE_LENGTH  1000
 
 static void PeakCorrection(CAEN_DGTZ_X742_GROUP_t *dataout) {
 	int offset;
@@ -95,142 +99,26 @@ static void PeakCorrection(CAEN_DGTZ_X742_GROUP_t *dataout) {
 	}
 }
 
-static int read_flash_page(int handle, uint8_t gr, int8_t* page, uint32_t pagenum)
-{ 
-  uint32_t flash_addr;
-  uint16_t	dd;
-  uint32_t i,tmp[528];
-  uint32_t fl_a[528];
-  uint8_t addr0,addr1,addr2;
-  int ret;
-  CAENComm_ErrorCode err[528];
-  
-	  flash_addr = pagenum<<9;
-	  addr0 = (uint8_t)flash_addr;
-	  addr1 = (uint8_t)(flash_addr>>8);
-	  addr2 = (uint8_t)(flash_addr>>16);
+/*! \brief   Corrects 'data' depending on the informations contained in 'CTable'
+*
+*   \param   CTable              :  Pointer to the Table containing the Data Corrections
+*   \param   frequency           :  The operational Frequency of the board
+*   \param   CorrectionLevelMask :  Mask of Corrections to be applied
+*   \param   data                :  Data to be corrected
+*/
+void ApplyDataCorrection(CAEN_DGTZ_DRS4Correction_t* CTable, CAEN_DGTZ_DRS4Frequency_t frequency, int CorrectionLevelMask, CAEN_DGTZ_X742_GROUP_t *data) {
 
-	  dd=0xffff;
-	  while ((dd>>2)& 0x1) 
-		if ((ret = CAENComm_Read16(handle, STATUS(gr), &dd)) != CAENComm_Success) return -1;
-	  // enable flash (NCS = 0)
-	  if ((ret = CAENComm_Write16(handle, SEL_FLASH(gr), (int16_t)1)) != CAENComm_Success) return -1;
-	  // write opcode
-	   if ((ret = CAENComm_Write16(handle, FLASH(gr), (int16_t)MAIN_MEM_PAGE_READ)) != CAENComm_Success) return -1;
-	  // write address
-	  dd=0xffff;
-	  if ((ret = CAENComm_Write16(handle, FLASH(gr), (int16_t)addr2)) != CAENComm_Success) return -1;
-	  dd=0xffff;
-	  if ((ret = CAENComm_Write16(handle, FLASH(gr), (int16_t)addr1)) != CAENComm_Success) return -1;
-	  dd=0xffff;
-	  if ((ret = CAENComm_Write16(handle, FLASH(gr), (int16_t)addr0)) != CAENComm_Success) return -1;
-	  // additional don't care bytes
-	  for (i=0; i<4; i++) {
-		dd=0xffff;
-	  if ((ret = CAENComm_Write16(handle, FLASH(gr), (int16_t)0)) != CAENComm_Success) return -1;
-	  }
-	  for (i=0; i<528; i+=2) {
-		 fl_a[i] = FLASH(gr);
-		 fl_a[i+1] = STATUS(gr);
-	  }	  
-	  if ((ret = CAENComm_MultiRead32(handle,fl_a,528,tmp,err)) != CAENComm_Success) 
-		return -1;
-	  for (i=0; i<528; i+=2) page[(int)(i/2)] = (int8_t) tmp[i];
-	  // disable flash (NCS = 1)
-	  if ((ret = CAENComm_Write16(handle, SEL_FLASH(gr), (int16_t)0))  != CAENComm_Success) 
-	  return -1;  
-	return 0;
-}
-
-
-int32_t LoadCorrectionTables(int handle, DataCorrection_t *Table, uint8_t group, uint32_t frequency) {
-	uint32_t pagenum = 0,i,n,j,start;
-	int8_t TempCell[264]; // 
-	int8_t *p;
-	int ret;
-	int8_t tmp[0x1000]; // 256byte * 16 pagine
-	for (n=0;n<MAX_X742_CHANNELS+1;n++) {
-		pagenum = 0;
-		pagenum = (group %2) ? 0xC00: 0x800;
-		pagenum |= frequency << 8;
-		pagenum |= n << 2;
-		// load the Offset Cell Correction
-		p = TempCell;
-		start = 0;
-		for (i=0;i<4;i++) {
-			int endidx = 256;
-			if ((ret =read_flash_page(handle,group,p,pagenum)) != 0) 
-				return ret;
-			// peak correction
-			for (j=start;j<(start+256);j++) {
-				if (p[j-start] != 0x7f) {
-					Table->cell[n][j] = p[j-start];
-				}
-				else {
-					short cel = (short)((((unsigned char)(p[endidx+1])) << 0x08) |((unsigned char) p[endidx]));
-					if (cel == 0) Table->cell[n][j] = p[j-start]; else Table->cell[n][j] = cel;
-					endidx+=2;
-					if (endidx > 263) endidx = 256;
-				}
-			}
-			start +=256;
-			pagenum++;
-		}
-		start = 0;
-		// load the Offset Num Samples Correction
-		p = TempCell;
-		pagenum &= 0xF00;
-		pagenum |= 0x40;
-		pagenum |= n << 2;
-		
-		for (i=0;i<4;i++) {
-			if ((ret =read_flash_page(handle,group,p,pagenum)) != 0) 
-				return ret;
-			for (j=start;j<start+256;j++) Table->nsample[n][j] = p[j-start];
-			start +=256;
-			pagenum++;
-		}
-		if (n == MAX_X742_CHANNELS) {
-			// load the Time Correction
-			p = TempCell;
-			pagenum &= 0xF00;
-			pagenum |= 0xA0;
-			start = 0;
-			for (i=0;i<16;i++) {
-				if ((ret =read_flash_page(handle,group,p,pagenum)) != 0) 
-					return ret;
-				for (j=start;j<start+256;j++) tmp[j] = p[j-start];
-				start +=256;
-				pagenum++;
-			}
-			for (i=0;i<1024;i++) {
-				p = (int8_t *) &(Table->time[i]);
-				p[0] = tmp[i*4];
-				p[1] = tmp[(i*4)+1];
-				p[2] = tmp[(i*4)+2];
-				p[3] = tmp[(i*4)+3];
-			}
-		}
-	}
-	return 0;
-}
-
-
-void ApplyDataCorrection(uint32_t group, int CorrectionLevelMask, CAEN_DGTZ_DRS4Frequency_t frequency, CAEN_DGTZ_X742_GROUP_t *data, DataCorrection_t *Table) {
-
-    int i, j,rpnt = 0, wpnt = 0, size1, size2,trg = 0,k;
-    long samples;
+    int i, j,rpnt = 0, wpnt = 0, size1, trg = 0,k;
     float Time[1024],t0; 
     float Tsamp; 
 	float vcorr; 
     uint16_t st_ind=0; 
-    uint32_t freq;
+    uint32_t freq = frequency;
     float wave_tmp[1024];
-	int cellCorrection = CorrectionLevelMask & 0x1;
+	int cellCorrection =CorrectionLevelMask & 0x1;
 	int nsampleCorrection = (CorrectionLevelMask & 0x2) >> 1;
 	int timeCorrection = (CorrectionLevelMask & 0x4) >> 2;
    
-
 	switch(frequency) {
 		case CAEN_DGTZ_DRS4_2_5GHz:
 			Tsamp =(float)((1.0/2500.0)*1000.0);
@@ -243,31 +131,33 @@ void ApplyDataCorrection(uint32_t group, int CorrectionLevelMask, CAEN_DGTZ_DRS4
 			break;
 	}
 
-	
 	if (data->ChSize[8] != 0) trg = 1;
 	st_ind =(uint16_t)(data->StartIndexCell);
 	for (i=0;i<MAX_X742_CHANNEL_SIZE;i++) {
 		size1  = data->ChSize[i];
-
-		for (j=0;j<size1;j++) {
-			if (cellCorrection) data->DataChannel[i][j] -= Table->cell[i][((st_ind+j) % 1024)]; 
-			if (cellCorrection) data->DataChannel[i][j] += Table->nsample[i][j];
+        for (j=0;j<size1;j++) {
+			if (cellCorrection)
+                data->DataChannel[i][j]  -=  CTable->cell[i][((st_ind+j) % 1024)]; 
+			if (nsampleCorrection)
+                data->DataChannel[i][j] -= CTable->nsample[i][j];
 		}
 	}
 	
-	PeakCorrection(data);
+	if (cellCorrection)
+        PeakCorrection(data);
+	if (!timeCorrection)
+        return;
 
-	t0 = Table->time[st_ind];                       
+	t0 = CTable->time[st_ind];                       
 	Time[0]=0.0;
-		
 	for(j=1; j < 1024; j++) {
-		 t0= Table->time[(st_ind+j)%1024]-t0;
+		 t0= CTable->time[(st_ind+j)%1024]-t0;
 		 if  (t0 >0) 
 		   Time[j] =  Time[j-1]+ t0;
 		 else
 		   Time[j] =  Time[j-1]+ t0 + (Tsamp*1024);
 
-		 t0 = Table->time[(st_ind+j)%1024];
+		 t0 = CTable->time[(st_ind+j)%1024];
 	}
 	for (j=0;j<8+trg;j++) {
 		data->DataChannel[j][0] = data->DataChannel[j][1];
@@ -284,4 +174,137 @@ void ApplyDataCorrection(uint32_t group, int CorrectionLevelMask, CAEN_DGTZ_DRS4
 		}
 		memcpy(data->DataChannel[j],wave_tmp,1024*sizeof(float));
 	}
+}
+
+/*! \brief   Write the correction table of a x742 boards into the output files
+*
+*   \param   Filename of output file
+*   \param   Group Mask of Tables to be saved
+*   \param   Pointer to the DataCorrection group tables
+*/
+int SaveCorrectionTables(char *outputFileName, uint32_t groupMask, CAEN_DGTZ_DRS4Correction_t *tables) {
+    char fnStr[MAX_BASE_INPUT_FILE_LENGTH + 1];
+    int ch,i,j, gr;
+    FILE *outputfile;
+
+    if((int)(strlen(outputFileName) - 17) > MAX_BASE_INPUT_FILE_LENGTH)
+        return -1; // Too long base filename
+
+    for(gr = 0; gr < MAX_X742_GROUP_SIZE; gr++) {
+        CAEN_DGTZ_DRS4Correction_t *tb;
+
+        if(!((groupMask>>gr)&0x1))
+            continue;
+        tb = &tables[gr];
+        sprintf(fnStr, "%s_gr%d_cell.txt", outputFileName, gr);
+        printf("Saving correction table cell values to %s\n", fnStr);
+        if((outputfile = fopen(fnStr, "w")) == NULL)
+            return -2;
+        for(ch=0; ch<MAX_X742_CHANNEL_SIZE; ch++) {
+            fprintf(outputfile, "Calibration values from cell 0 to 1024 for channel %d:\n\n", ch);
+            for(i=0; i<1024; i+=8) {
+                for(j=0; j<8; j++)
+                    fprintf(outputfile, "%d\t", tb->cell[ch][i+j]);
+                fprintf(outputfile, "cell = %d to %d\n", i, i+7);
+            }
+        }
+        fclose(outputfile);
+
+        sprintf(fnStr, "%s_gr%d_nsample.txt", outputFileName, gr);
+        printf("Saving correction table nsamples values to %s\n", fnStr);
+        if((outputfile = fopen(fnStr, "w")) == NULL)
+            return -3;
+        for(ch=0; ch<MAX_X742_CHANNEL_SIZE; ch++) {
+            fprintf(outputfile, "Calibration values from cell 0 to 1024 for channel %d:\n\n", ch);
+            for(i=0; i<1024; i+=8) {
+                for(j=0; j<8; j++)
+                    fprintf(outputfile, "%d\t", tb->nsample[ch][i+j]);
+                fprintf(outputfile, "cell = %d to %d\n", i, i+7);
+            }
+        }
+        fclose(outputfile);
+
+        sprintf(fnStr, "%s_gr%d_time.txt", outputFileName, gr);
+        printf("Saving correction table time values to %s\n", fnStr);
+        if((outputfile = fopen(fnStr, "w")) == NULL)
+            return -4;
+        fprintf(outputfile, "Calibration values (ps) from cell 0 to 1024 :\n\n");
+        for(i=0; i<1024; i+=8) {
+            for(ch=0; ch<8; ch++)
+                fprintf(outputfile, "%09.3f\t", tb->time[i+ch]);
+            fprintf(outputfile, "cell = %d to %d\n", i, i+7);
+        }
+        fclose(outputfile);
+    }
+    return 0;
+}
+
+/*! \brief   Reads the correction table of a x742 boards from txt files
+*
+*   \param   Base Filename of input file. Actual filenames loaded will be:
+*               a) baseInputFileName + "_cell.txt"
+*               b) baseInputFileName + "_nsample.txt"
+*               c) baseInputFileName + "_time.txt"
+*   \param   DataCorrection table to be filled
+*/
+int LoadCorrectionTable(char *baseInputFileName, CAEN_DGTZ_DRS4Correction_t *tb) {
+    char fnStr[MAX_BASE_INPUT_FILE_LENGTH + 1];
+    int ch, i, j, read;
+    FILE *inputfile;
+    char Buf[MAX_READ_CHAR + 1], *pread;
+
+    if(strlen(baseInputFileName) - 13 > MAX_BASE_INPUT_FILE_LENGTH)
+        return -1; // Too long base filename
+
+    strcpy(fnStr, baseInputFileName);
+    strcat(fnStr, "_cell.txt");
+    printf("Loading correction table cell values from %s\n", fnStr);
+    if((inputfile = fopen(fnStr, "r")) == NULL)
+        return -2;
+    for(ch=0; ch<MAX_X742_CHANNEL_SIZE; ch++) {
+        while(strstr(Buf, "Calibration") != Buf)
+            pread = fgets(Buf, MAX_READ_CHAR, inputfile);
+        
+        for(i=0; i<1024; i+=8) {
+            for(j=0; j<8; j++)
+                read = fscanf(inputfile, "%hd", &(tb->cell[ch][i+j]));
+            pread = fgets(Buf, MAX_READ_CHAR, inputfile);
+        }
+    }
+    fclose(inputfile);
+
+    strcpy(fnStr, baseInputFileName);
+    strcat(fnStr, "_nsample.txt");
+    printf("Loading correction table nsamples values from %s\n", fnStr);
+    if((inputfile = fopen(fnStr, "r")) == NULL)
+        return -3;
+    for(ch=0; ch<MAX_X742_CHANNEL_SIZE; ch++) {
+        while(strstr(Buf, "Calibration") != Buf)
+            pread = fgets(Buf, MAX_READ_CHAR, inputfile);
+        
+        for(i=0; i<1024; i+=8) {
+            for(j=0; j<8; j++)
+                read = fscanf(inputfile, "%hhd", &(tb->nsample[ch][i+j]));
+            pread = fgets(Buf, MAX_READ_CHAR, inputfile);
+        }
+    }
+    fclose(inputfile);
+
+    strcpy(fnStr, baseInputFileName);
+    strcat(fnStr, "_time.txt");
+    printf("Loading correction table time values from %s\n", fnStr);
+    if((inputfile = fopen(fnStr, "r")) == NULL)
+        return -4;
+    while(strstr(Buf, "Calibration") != Buf)
+        pread = fgets(Buf, MAX_READ_CHAR, inputfile);
+    pread = fgets(Buf, MAX_READ_CHAR, inputfile);
+        
+    for(i=0; i<1024; i+=8) {
+        for(j=0; j<8; j++)
+            read = fscanf(inputfile, "%f", &(tb->time[i+j]));
+        pread = fgets(Buf, MAX_READ_CHAR, inputfile);
+    }
+    fclose(inputfile);
+
+    return 0;
 }

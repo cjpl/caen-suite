@@ -59,7 +59,7 @@
 
 #define OUTFILENAME "wave"  /* The actual file name is wave_n.txt, where n is the channel */
 #define MAX_CH  64          /* max. number of channels */
-#define MAX_SET 8           /* max. number of independent settings */
+#define MAX_SET 16           /* max. number of independent settings */
 
 #define MAX_GW  1000        /* max. number of generic write commads */
 
@@ -69,12 +69,13 @@
 #define VME_INTERRUPT_STATUS_ID  0xAAAA
 #define INTERRUPT_MODE           CAEN_DGTZ_IRQ_MODE_ROAK
 #define INTERRUPT_TIMEOUT        200  // ms
-
         
 #define PLOT_WAVEFORMS   0
 #define PLOT_FFT         1
 #define PLOT_HISTOGRAM   2
 
+#define CFGRELOAD_CORRTABLES_BIT (0)
+#define CFGRELOAD_DESMODE_BIT (1)
 
 /* ###########################################################################
    Typedefs
@@ -87,7 +88,7 @@ typedef enum {
 } OUTFILE_FLAGS;
 
 
-typedef struct WaveDumpConfig_t {
+typedef struct {
     int LinkType;
     int LinkNum;
     int ConetNode;
@@ -104,13 +105,14 @@ typedef struct WaveDumpConfig_t {
     int TriggerEdge;
     int FPIOtype;
     CAEN_DGTZ_TriggerMode_t ExtTriggerMode;
-    uint8_t EnableMask;
+    uint16_t EnableMask;
     char GnuPlotPath[1000];
     CAEN_DGTZ_TriggerMode_t ChannelTriggerMode[MAX_SET];
     uint32_t DCoffset[MAX_SET];
     int32_t  DCoffsetGrpCh[MAX_SET][MAX_SET];
     uint32_t Threshold[MAX_SET];
 	uint8_t GroupTrgEnableMask[MAX_SET];
+    uint32_t MaxGroupNumber;
 	
 	uint32_t FTDCoffset[MAX_SET];
 	uint32_t FTThreshold[MAX_SET];
@@ -119,10 +121,13 @@ typedef struct WaveDumpConfig_t {
     int GWn;
     uint32_t GWaddr[MAX_GW];
     uint32_t GWdata[MAX_GW];
+	uint32_t GWmask[MAX_GW];
 	OUTFILE_FLAGS OutFileFlags;
 
     int useCorrections;
-
+    int UseManualTables;
+    char TablesFilenames[MAX_X742_GROUP_SIZE][1000];
+    CAEN_DGTZ_DRS4Frequency_t DRS4Frequency;
 } WaveDumpConfig_t;
 
 

@@ -28,6 +28,7 @@
 
 #define SAMPLETYPE_UINT8      0
 #define SAMPLETYPE_UINT16     1
+#define SAMPLETYPE_FLOAT      2
 
 /*
   Input Parameters: 
@@ -44,4 +45,4 @@
 
 int FFT (void *wave, double *fft, int ns, int WindowType, int SampleType);
 
-#endif
+#endif // __FFT_H

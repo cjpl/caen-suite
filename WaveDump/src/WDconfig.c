@@ -18,24 +18,18 @@
 ******************************************************************************/
 
 
-#include <CAENDigitizer.h>
-#include "WaveDump.h"
+#include <CAENDigitizerType.h>
+#include "WDconfig.h"
 
-
-/*! \fn      int ParseConfigFile(FILE *f_ini, WaveDumpConfig_t *WDcfg) 
-*   \brief   Read the configuration file and set the WaveDump paremeters
+/*! \fn      void SetDefaultConfiguration(WaveDumpConfig_t *WDcfg) 
+*   \brief   Fill the Configuration Structure with Default Values
 *            
-*   \param   f_ini        Pointer to the config file
 *   \param   WDcfg:   Pointer to the WaveDumpConfig data structure
-*   \return  0 = Success; negative numbers are error codes
 */
-int ParseConfigFile(FILE *f_ini, WaveDumpConfig_t *WDcfg) 
-{
-	char str[1000], str1[1000];
-	int i,j, ch=-1, val, Off=0, tr = -1;
+static void SetDefaultConfiguration(WaveDumpConfig_t *WDcfg) {
+    int i, j;
 
-	/* Default settings */
-	WDcfg->RecordLength = (1024*16);
+    WDcfg->RecordLength = (1024*16);
 	WDcfg->PostTrigger = 80;
 	WDcfg->NumEvents = 1023;
 	WDcfg->EnableMask = 0xFF;
@@ -58,9 +52,38 @@ int ParseConfigFile(FILE *f_ini, WaveDumpConfig_t *WDcfg)
 		WDcfg->FTThreshold[i] = 0;
 		WDcfg->FTDCoffset[i] =0;
     }
-
     WDcfg->useCorrections = -1;
+    WDcfg->UseManualTables = -1;
+    for(i=0; i<MAX_X742_GROUP_SIZE; i++)
+        sprintf(WDcfg->TablesFilenames[MAX_X742_GROUP_SIZE], "Tables_gr%d", i);
+    WDcfg->DRS4Frequency = CAEN_DGTZ_DRS4_5GHz;
+}
 
+/*! \fn      int ParseConfigFile(FILE *f_ini, WaveDumpConfig_t *WDcfg) 
+*   \brief   Read the configuration file and set the WaveDump paremeters
+*            
+*   \param   f_ini        Pointer to the config file
+*   \param   WDcfg:   Pointer to the WaveDumpConfig data structure
+*   \return  0 = Success; negative numbers are error codes; positive numbers
+*               decodes the changes which need to perform internal parameters
+*               recalculations.
+*/
+int ParseConfigFile(FILE *f_ini, WaveDumpConfig_t *WDcfg) 
+{
+	char str[1000], str1[1000], *pread;
+	int i, ch=-1, val, Off=0, tr = -1;
+    int ret = 0;
+
+    // Save previous valus (for compare)
+    int PrevDesMode = WDcfg->DesMode;
+    int PrevUseCorrections = WDcfg->useCorrections;
+	int PrevUseManualTables = WDcfg->UseManualTables;
+    size_t TabBuf[sizeof(WDcfg->TablesFilenames)];
+    // Copy the filenames to watch for changes
+    memcpy(TabBuf, WDcfg->TablesFilenames, sizeof(WDcfg->TablesFilenames));      
+
+	/* Default settings */
+	SetDefaultConfiguration(WDcfg);
 
 	/* read config file and assign parameters */
 	while(!feof(f_ini)) {
@@ -116,7 +139,7 @@ int ParseConfigFile(FILE *f_ini, WaveDumpConfig_t *WDcfg)
 			if (strcmp(str1, "USB")==0)
 				WDcfg->LinkType = CAEN_DGTZ_USB;
 			else if (strcmp(str1, "PCI")==0)
-				WDcfg->LinkType = CAEN_DGTZ_PCI_OpticalLink;
+				WDcfg->LinkType = CAEN_DGTZ_OpticalLink;
             else {
                 printf("%s %s: Invalid connection type\n", str, str1);
 				return -1; 
@@ -130,10 +153,11 @@ int ParseConfigFile(FILE *f_ini, WaveDumpConfig_t *WDcfg)
 			continue;
 		}
 
-		// Generic VME Write (address offset + data, both exadecimal)
+		// Generic VME Write (address offset + data + mask, each exadecimal)
 		if ((strstr(str, "WRITE_REGISTER")!=NULL) && (WDcfg->GWn < MAX_GW)) {
 			read = fscanf(f_ini, "%x", (int *)&WDcfg->GWaddr[WDcfg->GWn]);
 			read = fscanf(f_ini, "%x", (int *)&WDcfg->GWdata[WDcfg->GWn]);
+            read = fscanf(f_ini, "%x", (int *)&WDcfg->GWmask[WDcfg->GWn]);
 			WDcfg->GWn++;
 			continue;
 		}
@@ -144,13 +168,65 @@ int ParseConfigFile(FILE *f_ini, WaveDumpConfig_t *WDcfg)
 			continue;
 		}
 
+        // Acquisition Record Length (number of samples)
+		if (strstr(str, "DRS4_FREQUENCY")!=NULL) {
+            int PrevDRS4Freq = WDcfg->DRS4Frequency;
+            int freq;
+            read = fscanf(f_ini, "%d", &freq);
+            WDcfg->DRS4Frequency = (CAEN_DGTZ_DRS4Frequency_t)freq;
+            if(PrevDRS4Freq != WDcfg->DRS4Frequency)
+                ret |= (0x1 << CFGRELOAD_CORRTABLES_BIT);
+			continue;
+		}
+
         // Correction Level (mask)
 		if (strstr(str, "CORRECTION_LEVEL")!=NULL) {
-			read = fscanf(f_ini, "%s", str1);
+            int changed = 0;
+            
+            read = fscanf(f_ini, "%s", str1);
             if( strcmp(str1, "AUTO") == 0 )
                 WDcfg->useCorrections = -1;
-            else
+            else {
+                int gr = 0;
+                char Buf[1000];
+                const char *tokens = " \t";
+                char *ptr = Buf;
+
                 WDcfg->useCorrections = atoi(str1);
+                pread = fgets(Buf, 1000, f_ini); // Get the remaining line
+                WDcfg->UseManualTables = -1;
+                if(sscanf(ptr, "%s", str1) == 0) {
+                    printf("Invalid syntax for parameter %s\n", str);
+                    continue;
+                }
+                if(strcmp(str1, "AUTO") != 0) { // The user wants to use custom correction tables
+                    WDcfg->UseManualTables = atoi(ptr); // Save the group mask
+                    ptr = strstr(ptr, str1);
+                    ptr += strlen(str1);
+                    while(sscanf(ptr, "%s", str1) == 1 && gr < MAX_X742_GROUP_SIZE) {
+                        while( ((WDcfg->UseManualTables) & (0x1 << gr)) == 0 && gr < MAX_X742_GROUP_SIZE)
+                            gr++;
+                        if(gr >= MAX_X742_GROUP_SIZE) {
+                            printf("Error parsing values for parameter %s\n", str);
+                            continue;
+                        }
+                        ptr = strstr(ptr, str1);
+                        ptr += strlen(str1);
+                        strcpy(WDcfg->TablesFilenames[gr], str1);
+                        gr++;
+                    }
+                }
+            }
+
+            // Check for changes
+            if (PrevUseCorrections != WDcfg->useCorrections)
+                changed = 1;
+            else if (PrevUseManualTables != WDcfg->UseManualTables)
+                changed = 1;
+            else if (memcmp(TabBuf, WDcfg->TablesFilenames, sizeof(WDcfg->TablesFilenames)))
+                changed = 1;
+            if (changed == 1)
+                ret |= (0x1 << CFGRELOAD_CORRTABLES_BIT);
 			continue;
 		}
 
@@ -208,11 +284,13 @@ int ParseConfigFile(FILE *f_ini, WaveDumpConfig_t *WDcfg)
 
         // DesMode (Double sampling frequency for the Mod 731 and 751)
 		if (strstr(str, "ENABLE_DES_MODE")!=NULL) {
-			read = fscanf(f_ini, "%s", str1);
+            read = fscanf(f_ini, "%s", str1);
 			if (strcmp(str1, "YES")==0)
 				WDcfg->DesMode = 1;
 			else if (strcmp(str1, "NO")!=0)
 				printf("%s: invalid option\n", str);
+            if(PrevDesMode != WDcfg->DesMode)
+                ret |= (0x1 << CFGRELOAD_DESMODE_BIT);
 			continue;
 		}
 
@@ -375,6 +453,6 @@ int ParseConfigFile(FILE *f_ini, WaveDumpConfig_t *WDcfg)
 
         printf("%s: invalid setting\n", str);
 	}
-	return 0;
+	return ret;
 }
 

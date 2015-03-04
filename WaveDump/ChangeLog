@@ -8,6 +8,19 @@
   WaveDump Release Notes
 
   -----------------------------------------------------------------------------
+  Rel. 3.6.3 - Bugfixes from CAENDigitizer 2.4.6
+             - Removed deprecated PCI link type and used new one
+  Rel. 3.6.2 - Disabled option 'h' for x742 boards (not managed for float samples)
+             - Implemented FFT display for x742 boards
+  Rel. 3.6.1 - Bugfix on X730 boards
+             - Support to all X742 operating frequencies
+             - Bugfixes from CAENDigitizer Library v. 2.4.1
+  Rel. 3.6.0 - Preliminary support to X730 boards.
+             - Support to Masked Generic Writes, performed at the end of the digitizer's programming
+             - Bugfix of GNUPlot usage on Linux.
+             - Various Bugfixes and Improvements for X742 boards
+             - Improved configuration file management when reloading the digitizer's configuration.
+  Rel. 3.5.4 - Bug Fix for x724 boards using ZLE feature
   Rel. 3.5.3 - Fixed GNUPlot default path
              - Compatibility for 8-bit FFT
 		     - Bug Fix on DES mode for V1731 boards

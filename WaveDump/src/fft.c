@@ -46,6 +46,32 @@
 #define M_PI 3.141592653
 #endif
 
+void getWindowingF(double *x, double *y, float *wave, int n, int WindowType) {
+    int i;
+
+    // apply the windowing to the input vector
+    for(i=0; i<n; i++) {
+        y[i] = 0.0; // imaginary part of the input vector (always 0)
+        switch (WindowType) {
+            case HANNING_FFT_WINDOW  :  
+                x[i] = wave[i] * (0.5 - 0.5 * cos(2*M_PI * i/n));
+                break;
+            case HAMMING_FFT_WINDOW  :  
+                x[i] = wave[i] * (0.54 - 0.46 * cos(2*M_PI * i/n)); 
+                break;
+            case BLACKMAN_FFT_WINDOW  :  
+                x[i] = wave[i] * (2.4 * (0.42323 - 0.49755*cos(2*M_PI*i/n) + 0.07922*cos(4*M_PI*i/n)));
+                break;
+            case RECT_FFT_WINDOW  :  
+                x[i] = wave[i];
+                break;
+            default :  
+                x[i] = wave[i] * (2.4*(0.42323-0.49755*cos(2*M_PI*(i)/n)+0.07922*cos(4*M_PI*(i)/n)));
+                break;
+        }
+    }
+}
+
 void getWindowing16(double *x, double *y, unsigned short *wave, int n, int WindowType) {
     int i;
 
@@ -127,6 +153,8 @@ int FFT (void *wave, double *fft, int ns, int WindowType, int SampleType)
         getWindowing8(x, y, (unsigned char *)wave, n, WindowType);
     else if(SampleType==SAMPLETYPE_UINT16)
         getWindowing16(x, y, (unsigned short *)wave, n, WindowType);
+    else if(SampleType==SAMPLETYPE_FLOAT)
+        getWindowingF(x, y, (float *)wave, n, WindowType);
     else {
         free(x);
         free(y);

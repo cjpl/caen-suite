@@ -14,8 +14,10 @@
 * software, documentation and results solely at his own risk.
 ******************************************************************************/
 
-#include "WaveDump.h"
+#ifndef _WDCONFIG__H
+#define _WDCONFIG__H
 
+#include "WaveDump.h"
 
 /* ###########################################################################
 *  Functions
@@ -30,6 +32,16 @@
 */
 int ParseConfigFile(FILE *f_ini, WaveDumpConfig_t *WDcfg);
 
+/*! \fn      int WriteRegisterBitmask(int32_t handle, uint32_t address, uint32_t data, uint32_t mask)
+*   \brief   writes 'data' on register at 'address' using 'mask' as bitmask
+*
+*   \param   handle :   Digitizer handle
+*   \param   address:   Address of the Register to write
+*   \param   data   :   Data to Write on the Register
+*   \param   mask   :   Bitmask to use for data masking
+*   \return  0 = Success; negative numbers are error codes
+*/
+int WriteRegisterBitmask(int32_t handle, uint32_t address, uint32_t data, uint32_t mask);
 
 /*! \fn      int ProgramDigitizer(int handle, WaveDumpConfig_t WDcfg) 
 *   \brief   configure the digitizer according to the parameters read from
@@ -48,3 +60,5 @@ int ProgramDigitizer(int handle, WaveDumpConfig_t WDcfg);
 *   \param   WDrun:   Pointer to the WaveDumpRun data structure
 */
 void CheckKeyboardCommands(WaveDumpRun_t *WDrun);
+
+#endif // _WDCONFIG__H

@@ -141,7 +141,7 @@ int PlotWaveforms(void)
                } else if (PlotVar.DataType == PLOT_DATA_FLOAT) {
                     float *data = (float *)PlotVar.TraceData[i];
                     fprintf(fplot, "%f\t", data[s]);
-                }  
+                }
 				npts++;
 			}
 			if (PlotVar.TraceSize[i] == (s-1))
@@ -158,7 +158,7 @@ int PlotWaveforms(void)
 	for(i=0; i<PlotVar.NumTraces; i++) {
 		if (comma)
 			fprintf(gnuplot, ", ");
-		fprintf(gnuplot, "'%s' using ($1*%f):($%d*%f) title '%s' with step %d ", PLOT_DATA_FILE, PlotVar.Xscale, c++, PlotVar.Yscale, PlotVar.TraceName[i], i+1);
+		fprintf(gnuplot, "'%s' using ($1*%f):($%d*%f) title '%s' with step linecolor %d ", PLOT_DATA_FILE, PlotVar.Xscale, c++, PlotVar.Yscale, PlotVar.TraceName[i], i+1);
 		comma = 1;
 	}
 	fprintf(gnuplot, "\n"); 
