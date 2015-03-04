@@ -11,7 +11,7 @@ Digitizer 工具：
     - http://www.caen.it/csite/CaenProd.jsp?parent=38&idmod=677
     - CAEN DigitizerSDK: 1.3, 2010-02-10, 包含在 CAENScope 当中
   - WaveDump
-    - 3.5.2, 2013-05
+    - 3.6.3, 2014
     - http://www.caen.it/csite/CaenProd.jsp?parent=38&idmod=692
 
 依赖的库：
@@ -19,13 +19,13 @@ Digitizer 工具：
     - 1.02, 2010-07
     - http://www.caen.it/csite/CaenProd.jsp?idmod=684&parent=38
   - CAENDigitizer Library
-    - 2.3.1, 2013-04
+    - 2.4.6, 2014-04
     - http://www.caen.it/csite/CaenProd.jsp?idmod=717&parent=38
   - CAEN USB Driver
-    - 1.1, 2013-01
+    - 1.4, 2014-01
     - 可在 DT5751 的产品网页中下载
   - CAENVME Library
-    - 2.30.2, 2011-11
+    - 2.41, 2013-03
     - http://www.caen.it/csite/CaenProd.jsp?idmod=689&parent=38
 
 其它软件：

@@ -9,9 +9,9 @@
         
         ----------------------------------------------------------------------
 
-        Package for Linux kernels 2.4, 2.6
+        Package for Linux 
 
-        December 2011
+        December 2013
 
 
  The complete documentation can be found in the User's Manual on CAEN's web
@@ -40,8 +40,7 @@
  -------------------
 
  - CAEN V1718 USB-VME Bridge and/or CAEN V2718 PCI-VME Bridge
- - Linux kernel Rel. 2.4 or 2.6 with gnu C/C++ compiler
-
+ - Linux glibc version 2.12 or greater
 
  Installation notes
  ------------------

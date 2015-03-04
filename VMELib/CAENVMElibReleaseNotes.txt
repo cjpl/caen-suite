@@ -7,7 +7,8 @@
   CAENVME Library Release Notes
 
   -----------------------------------------------------------------------------
-  Rel. 2.30.2 	- November	2011
+  Rel. 2.41 	- March	    2013
+  Rel. 2.30.2 	- November  2011
   Rel. 2.30 	- May	    2011
   Rel. 2.22 	- December  2010
   Rel. 2.21 	- November  2010
@@ -44,7 +45,15 @@
 
   - CAEN V1718 USB-VME Bridge and/or CAEN V2718 PCI-VME Bridge
   - Linux kernel 2.4 or 2.6 and GNU C/C++ compiler
-  
+
+  What's New in Rel. 2.41
+  --------------------------
+
+   New Features and Important Notes
+   --------------------------------
+  - Fix bug on CAENVME_Init
+  - Improuved ReadFlashPage function using verified usleep functions
+ 
   What's New in Rel. 2.3.2
   --------------------------
  
