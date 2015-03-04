@@ -8,7 +8,7 @@
 
   -----------------------------------------------------------------------------
 
-  Rel. 2.3.2  - May 2013
+  Rel. 2.4.6  - Apr 2014
  
   -----------------------------------------------------------------------------
  
@@ -27,6 +27,60 @@
  
   - Windows 2000/XP/Vista/7 or Linux Kernel 2.4/2.6
   - CAENComm library version 1.01 or above.  
+  
+  What's New in Rel. 2.4.6
+  --------------------------
+    - Changed DPP-PHA digital probes names inside enum (to match the firmware's ones)
+    - Added "Extras" field on DPP-PSD_Event_t structure
+    - Bugfixes for x743 boards
+    - Added x730B board models for Desktop and NIM form factors
+    - Bugfixes for x724 DPP-PHA
+    - Bugfixes for x730 DPP-PSD
+  
+  What's New in Rel. 2.4.5
+  --------------------------
+    - Add support to x743 boards
+    - Bugfix on V1730 boards with only an A747 board
+  
+  What's New in Rel. 2.4.4
+  --------------------------
+    - Preliminary support to x743 boards
+    - Handle of CAENComm library is now available in BoardInfo structure
+    - Board's license is now available in BoardInfo structure
+    - The PileUp bit (15) of the "Energy" value for DPP-PHA is not cut anymore
+  
+  What's New in Rel. 2.4.3
+  --------------------------
+    - Bugfixes for X740 boards
+    - Bugfixes for X721 boards
+  
+  What's New in Rel. 2.4.2
+  --------------------------
+    - Bugfix for Waveform's Decode on boards running DPP-PHA firmware
+  
+  What's New in Rel. 2.4.1
+  --------------------------
+    - Bugfixes for X742 Boards
+    - Fixed bug of Digitizer's reopen after an open failure
+  
+  What's New in Rel. 2.4.0
+  --------------------------
+    - Added Preliminary support to x730 boards, FW standard and DPP-PSD.
+    - Defined in CAENDigitizerType.h header the DPP codes.
+    - Structure 'CAEN_DGTZ_Correction_t' moved in 'CAENDigitizerType.h'
+        to be used for offline corrections.
+    - Added function 'CAEN_DGTZ_GetCorrectionTables' to get X742 Correction
+        Tables from Digitizer Flash.
+    - Various stabilizations for X742 boards
+    - Bugfixes for X761 boards
+    - Bugfixes on ReadoutTest_DPP_CI_x720
+    - Bugfix on x721 Get/Set PostTriggerSize
+    - Bugfix on x751 Get/Set PostTriggerSize
+    - Other minor Bugfixes
+  
+  What's New in Rel. 2.3.3
+  --------------------------
+    - Bugfix for x724 boards using ZLE feature
   
   What's New in Rel. 2.3.2
   --------------------------
@@ -57,8 +111,6 @@
   --------------------------
     - New Features:
 	    - Added individual channel management of Recordlength parameter for x751 boards
-	- Bugfixes:
-	    - Added Makefile files for library sample programs
   
   What's New in Rel. 2.2.0
   --------------------------
@@ -113,7 +165,7 @@
 			- Fixed CAEN_DGTZ_SetRecordLength
 			- Fixed CAEN_DGTZ_GetRecordLength
 			- Fixed CAEN_DGTZ_SetPostTriggerSize
-
+  
   What's New in Rel. 2.0.0
   -------------------------- 
 	- Add support to new DPP Firmares:

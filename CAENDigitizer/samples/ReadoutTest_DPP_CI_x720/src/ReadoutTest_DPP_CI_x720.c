@@ -94,13 +94,15 @@ int ProgramDigitizer(int handle, DigitizerParams_t Params, CAEN_DGTZ_DPP_CI_Para
     // Set the DPP specific parameters for the channels in the given channelMask
     ret |= CAEN_DGTZ_SetDPPParameters(handle, Params.ChannelMask, &DPPParams);
     
+    // Set the Pre-Trigger size (in samples).
+    // NOTE: for DPP-CI firmware the pre-trigger is common to all channels. In order to
+    // make the following function work on such firmware, it is necessary to use -1 as channel number.
+    ret |= CAEN_DGTZ_SetDPPPreTriggerSize(handle, -1, 80);
+
     for(i=0; i<MaxNChannels; i++) {
         if (Params.ChannelMask & (1<<i)) {
             // Set a DC offset to the input signal to adapt it to digitizer's dynamic range
             ret |= CAEN_DGTZ_SetChannelDCOffset(handle, i, 0x8000);
-            
-            // Set the Pre-Trigger size (in samples)
-            ret |= CAEN_DGTZ_SetDPPPreTriggerSize(handle, i, 80);
             
             // Set the polarity for the given channel (CAEN_DGTZ_PulsePolarityPositive or CAEN_DGTZ_PulsePolarityNegative)
             ret |= CAEN_DGTZ_SetChannelPulsePolarity(handle, i, Params.PulsePolarity);
