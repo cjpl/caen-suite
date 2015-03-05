@@ -27,6 +27,15 @@ endif(NOT DEFINED INSTALL_DATADIR)
 ############################################################
 # Libraries
 
+if(NOT DEFINED CAEN_LIB_PATH)
+  message(STATUS "Set default CAEN Libraries path")
+  set(CAEN_LIB_PATH "${INSTALL_LIBEXECDIR}/lib")
+endif(NOT DEFINED CAEN_LIB_PATH)
+if(NOT DEFINED CAEN_INCLUDE_PATH)
+  message(STATUS "Set default CAEN include path")
+  set(CAEN_INCLUDE_PATH "${INSTALL_LIBEXECDIR}/include")
+endif(NOT DEFINED CAEN_INCLUDE_PATH)
+
 link_directories(${CAEN_LIB_PATH})
 include_directories(${CAEN_INCLUDE_PATH})
 
@@ -55,7 +64,7 @@ install( FILES
   ${INSTALL_DATADIR} )
 
 install( DIRECTORY
-  inc/
-  src/
+  inc
+  src
   DESTINATION ${INSTALL_DATADIR}/sources/ )
 

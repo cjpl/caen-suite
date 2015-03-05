@@ -19,20 +19,10 @@ if(NOT DEFINED INSTALL_LIBEXECDIR)
   message(STATUS "Set default libexec as prefix")
   set(INSTALL_LIBEXECDIR "${CMAKE_INSTALL_PREFIX}")
 endif(NOT DEFINED INSTALL_LIBEXECDIR)
-# libdir = ${libexec}/lib
-set(INSTALL_LIBDIR "${INSTALL_LIBEXECDIR}/lib")
-# incdir = ${libexec}/include
-if(NOT DEFINED INSTALL_INCLUDEDIR)
-  set(INSTALL_INCLUDEDIR "${INSTALL_LIBEXECDIR}/include")
-endif(NOT DEFINED INSTALL_INCLUDEDIR)
 # datadir = ${libexec}/share or ${prefix}/share/CAENScope
 if(NOT DEFINED INSTALL_DATADIR)
   set(INSTALL_DATADIR "${CMAKE_INSTALL_PREFIX}/share/CAENScope")
 endif(NOT DEFINED INSTALL_DATADIR)
-# docdir = ${prefix}/share/doc/CAENScope
-if(NOT DEFINED INSTALL_DOCDIR)
-  set(INSTALL_DOCDIR "${CMAKE_INSTALL_PREFIX}/share/doc/CAENScope")
-endif(NOT DEFINED INSTALL_DOCDIR)
 
 ############################################################
 
@@ -45,6 +35,19 @@ ELSE(wxWidgets_FOUND)
   message(ERROR "Failed to find wxWidgets")
 ENDIF(wxWidgets_FOUND)
 
+## libraries
+if(NOT DEFINED CAEN_LIB_PATH)
+  message(STATUS "Set default CAEN Libraries path")
+  set(CAEN_LIB_PATH "${INSTALL_LIBEXECDIR}/lib")
+endif(NOT DEFINED CAEN_LIB_PATH)
+if(NOT DEFINED CAEN_INCLUDE_PATH)
+  message(STATUS "Set default CAEN include path")
+  set(CAEN_INCLUDE_PATH "${INSTALL_LIBEXECDIR}/include")
+endif(NOT DEFINED CAEN_INCLUDE_PATH)
+
+link_directories(${CAEN_LIB_PATH})
+include_directories(${CAEN_INCLUDE_PATH})
+
 # find libCAENVME
 #link_directories(${CMAKE_SOURCE_DIR}/../VMELib/lib/x64)
 
@@ -54,29 +57,32 @@ ENDIF(wxWidgets_FOUND)
 # endif(CAENVME_LIB)
 
 # Add definitions
-add_definitions(-DLINUX -Wl,--allow-multiple-definition)
+add_definitions(-DLINUX -Wl,--allow-multiple-definition -nostartfiles)
 #add_definitions(-DLINUX)
 
 # dependencies
-include_directories(include
-  ${CMAKE_SOURCE_DIR}/../DigitizerSDK/include
-  ${CMAKE_SOURCE_DIR}/../VMELib/include)
+include_directories(include DigitizerSDK/include)
 
 ############################################################
 # sources
 # build libCAENdigitizerSDK first
-add_subdirectory(../DigitizerSDK/src "${CMAKE_CURRENT_BINARY_DIR}/digiSDK")
+#add_subdirectory(../DigitizerSDK/src "${CMAKE_CURRENT_BINARY_DIR}/digiSDK")
+add_subdirectory(DigitizerSDK/src)
 # then .. CAENScope
 add_subdirectory(src)
 
 ############################################################
-## install: headers
-# install(DIRECTORY include/  DESTINATION ${INSTALL_INCLUDEDIR}/gppanel/)
 
-## install: docs
-# install(DIRECTORY CAENScope/docs/ DESTINATION ${INSTALL_DATADIR})
-#install(FILES
-#  CAENScope/licence.txt
-#  CAENScope/readme.txt
-#  CAENScope/MathplotMyModifications.txt
-#  DESTINATION ${INSTALL_DATADIR})
+# install: docs imgs
+install( DIRECTORY
+  doc img
+  DESTINATION ${INSTALL_DATADIR} )
+
+install( FILES
+  ChangeLog
+  AUTHORS
+  COPYING
+  README
+  DESTINATION
+  ${INSTALL_DATADIR} )
+

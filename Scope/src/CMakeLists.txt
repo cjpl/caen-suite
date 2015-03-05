@@ -18,21 +18,14 @@ add_executable( CAENScope
   V1740_board_channel.cpp view_ch_control.cpp V1751_board.cpp
   device_select_dialog.cpp )
 set_target_properties( CAENScope PROPERTIES LINKER_LANGUAGE CXX )
-target_link_libraries(CAENScope
+target_link_libraries( CAENScope
   ${wxWidgets_LIBRARIES}
-  CAENVME
-  CAENdigitizerSDK
-  )
-
-## ElDigi library
-# add_library(ElDigi        SHARED ${cppsrcs})
-# add_library(ElDigi-static STATIC ${cppsrcs})
-# target_link_libraries(ElDigi        ${wxWidgets_LIBRARIES})
-# target_link_libraries(ElDigi-static ${wxWidgets_LIBRARIES})
+  CAENdigitizerSDK CAENVME )
 
 ############################################################
 ## install
-# install(TARGETS ElDigi  LIBRARY DESTINATION ${INSTALL_LIBDIR}
-#   PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
-#   GROUP_READ GROUP_EXECUTE WORLD_EXECUTE WORLD_READ)
-# install(TARGETS ElDigi-static  ARCHIVE DESTINATION ${INSTALL_LIBDIR})
+
+install( TARGETS CAENScope
+  RUNTIME
+  DESTINATION ${INSTALL_LIBEXECDIR}/bin )
+

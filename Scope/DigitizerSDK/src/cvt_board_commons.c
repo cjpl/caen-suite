@@ -118,9 +118,11 @@ BOOL WINAPI DllMain( HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserved
 
         -----------------------------------------------------------------------------
 */
+/*
 void _init( void )
 {
 }
+*/
 
 /*
         -----------------------------------------------------------------------------
@@ -130,9 +132,17 @@ void _init( void )
 
         -----------------------------------------------------------------------------
 */
+/*
 void _fini( void )
 {
 }
+*/
+
+/*
+ *  As suggested here, it is not safe to override gcc default "_init" and "_fini"
+ *   - http://stackoverflow.com/questions/5474969/overriding-init-function-in-c-how-safe-is-it
+ *   - http://www.faqs.org/docs/Linux-HOWTO/Program-Library-HOWTO.html#INIT-AND-CLEANUP
+ */
 
 #endif // WIN32
 

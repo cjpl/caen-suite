@@ -86,6 +86,7 @@ inst_wavedump () {
     inst_caencomm
     inst_vmelib
     inst_digitizer
+    
     mkdir -p build/wavedump
     cd build/wavedump/
     cmake -DCMAKE_INSTALL_PREFIX=${DEST} \
@@ -100,7 +101,19 @@ inst_wavedump () {
 
 # CAENScope
 inst_caenscope () {
-    echo "Not ready!"
+    inst_vmelib
+
+    mkdir -p build/scope
+    cd build/scope
+    cmake -DCMAKE_INSTALL_PREFIX=${DEST} \
+          -DCAEN_INCLUDE_PATH=${DEST}/include/${PREFIX} \
+          -DCAEN_LIB_PATH=${DEST}/lib/${PREFIX} \
+          ../../Scope
+    make
+    make install
+    cd -
+    #rm -rf build/scope
+    # echo "Not ready!"
 }
 
 ############################################################
@@ -136,9 +149,6 @@ case "${TARGET}" in
         ;;
     *)
         echo "Usage: $0 [dest] [args]"
-        echo ${DEST}
-        echo ${PREFIX}
-        echo ${ARCH}
-        echo ${CBOTS[@]}
         ;;
 esac
+

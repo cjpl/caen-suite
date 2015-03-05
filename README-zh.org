@@ -16,7 +16,7 @@ Digitizer 工具：
 
 依赖的库：
   - CAENComm
-    - 1.02, 2010-07
+    - 1.2, 2013-12
     - http://www.caen.it/csite/CaenProd.jsp?idmod=684&parent=38
   - CAENDigitizer Library
     - 2.6.5, 2015-02
