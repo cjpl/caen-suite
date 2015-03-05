@@ -255,12 +255,12 @@ int main(int argc, char *argv[])
         * Communication Parameters   *
         \****************************/
         // Direct USB connection
-        //Params[b].LinkType = CAEN_DGTZ_USB;  // Link Type
-        //Params[b].VMEBaseAddress = 0;  // For direct USB connection, VMEBaseAddress must be 0
+        Params[b].LinkType = CAEN_DGTZ_USB;  // Link Type
+        Params[b].VMEBaseAddress = 0;  // For direct USB connection, VMEBaseAddress must be 0
 
         // Direct optical connection
-        Params[b].LinkType = CAEN_DGTZ_PCI_OpticalLink;  // Link Type
-        Params[b].VMEBaseAddress = 0;  // For direct CONET connection, VMEBaseAddress must be 0
+        //Params[b].LinkType = CAEN_DGTZ_PCI_OpticalLink;  // Link Type
+        //Params[b].VMEBaseAddress = 0;  // For direct CONET connection, VMEBaseAddress must be 0
 
         // Optical connection to A2818 (or A3818) and access to the board with VME bus
         //Params[b].LinkType = CAEN_DGTZ_PCI_OpticalLink;  // Link Type (CAEN_DGTZ_PCIE_OpticalLink for A3818)
@@ -332,11 +332,11 @@ int main(int argc, char *argv[])
         
         /* The following is for b boards connected via b USB direct links
         in this case you must set Params[b].LinkType = CAEN_DGTZ_USB and Params[b].VMEBaseAddress = 0 */
-        //ret = CAEN_DGTZ_OpenDigitizer(Params[b].LinkType, b, 0, Params[b].VMEBaseAddress, &handle[b]);
+        ret = CAEN_DGTZ_OpenDigitizer(Params[b].LinkType, b, 0, Params[b].VMEBaseAddress, &handle[b]);
 
         /* The following is for b boards connected via 1 opticalLink in dasy chain
         in this case you must set Params[b].LinkType = CAEN_DGTZ_PCI_OpticalLink and Params[b].VMEBaseAddress = 0 */
-        ret = CAEN_DGTZ_OpenDigitizer(Params[b].LinkType, 0, b, Params[b].VMEBaseAddress, &handle[b]);
+        //ret = CAEN_DGTZ_OpenDigitizer(Params[b].LinkType, 0, b, Params[b].VMEBaseAddress, &handle[b]);
 
         /* The following is for b boards connected to A2818 (or A3818) via opticalLink (or USB with A1718)
         in this case the boards are accessed throught VME bus, and you must specify the VME address of each board:

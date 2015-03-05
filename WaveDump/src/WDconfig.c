@@ -32,11 +32,12 @@ static void SetDefaultConfiguration(WaveDumpConfig_t *WDcfg) {
     WDcfg->RecordLength = (1024*16);
 	WDcfg->PostTrigger = 80;
 	WDcfg->NumEvents = 1023;
-	WDcfg->EnableMask = 0xFF;
+	WDcfg->EnableMask = 0xFFFF;
 	WDcfg->GWn = 0;
     WDcfg->ExtTriggerMode = CAEN_DGTZ_TRGMODE_ACQ_ONLY;
     WDcfg->InterruptNumEvents = 0;
     WDcfg->TestPattern = 0;
+	WDcfg->DecimationFactor = 1;
     WDcfg->TriggerEdge = 0;
     WDcfg->DesMode = 0;
 	WDcfg->FastTriggerMode = 0; 
@@ -55,7 +56,7 @@ static void SetDefaultConfiguration(WaveDumpConfig_t *WDcfg) {
     WDcfg->useCorrections = -1;
     WDcfg->UseManualTables = -1;
     for(i=0; i<MAX_X742_GROUP_SIZE; i++)
-        sprintf(WDcfg->TablesFilenames[MAX_X742_GROUP_SIZE], "Tables_gr%d", i);
+        sprintf(WDcfg->TablesFilenames[i], "Tables_gr%d", i);
     WDcfg->DRS4Frequency = CAEN_DGTZ_DRS4_5GHz;
 }
 
@@ -237,6 +238,12 @@ int ParseConfigFile(FILE *f_ini, WaveDumpConfig_t *WDcfg)
 				WDcfg->TestPattern = 1;
 			else if (strcmp(str1, "NO")!=0)
 				printf("%s: invalid option\n", str);
+			continue;
+		}
+
+		// Acquisition Record Length (number of samples)
+		if (strstr(str, "DECIMATION_FACTOR")!=NULL) {
+			read = fscanf(f_ini, "%d", &WDcfg->DecimationFactor);
 			continue;
 		}
 

@@ -123,7 +123,7 @@ typedef struct {
     uint32_t GWdata[MAX_GW];
 	uint32_t GWmask[MAX_GW];
 	OUTFILE_FLAGS OutFileFlags;
-
+	int DecimationFactor;
     int useCorrections;
     int UseManualTables;
     char TablesFilenames[MAX_X742_GROUP_SIZE][1000];

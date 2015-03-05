@@ -99,6 +99,10 @@ ENABLED_FAST_TRIGGER_DIGITIZING		YES
 # options: 1 to 1023
 MAX_NUM_EVENTS_BLT   1
 
+# DECIMATION_FACTOR: ONLY FOR 740 MODELS. change the decimation factor for the acquisition.
+# options: 1 2 4 8 16 32 64 128  
+DECIMATION_FACTOR  1
+
 # POST_TRIGGER: post trigger size in percent of the whole acquisition window
 # options: 0 to 100
 # On models 742 there is a delay of about 35nsec on signal Fast Trigger TR; the post trigger is added to
@@ -166,6 +170,9 @@ TRIGGER_THRESHOLD      100
 # CHANNEL_TRIGGER: channel auto trigger settings. When enabled, the ch. auto trg. can be either 
 # propagated (ACQUISITION_AND_TRGOUT) or not (ACQUISITION_ONLY) through the TRGOUT
 # options: DISABLED, ACQUISITION_ONLY, ACQUISITION_AND_TRGOUT
+# NOTE: since in x730 boards even and odd channels are paired, their 'CHANNEL_TRIGGER' value
+# will be equal to the one specified on the even channel, unless one of the two channels of
+# the pair is set to 'DISABLED'. If so, the other one behaves as usual.
 CHANNEL_TRIGGER        DISABLED
 
 # GROUP_TRG_ENABLE_MASK: this option is used only for the Models x740. These models have the

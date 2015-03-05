@@ -8,7 +8,7 @@
 
   -----------------------------------------------------------------------------
 
-  Rel. 2.4.6  - Apr 2014
+  Rel. 2.6.5  - Feb 2015
  
   -----------------------------------------------------------------------------
  
@@ -25,8 +25,65 @@
  System Requirements
  -------------------
  
-  - Windows 2000/XP/Vista/7 or Linux Kernel 2.4/2.6
+  - Windows or Linux OS (Linux glibc 2.11.1 or greater)
   - CAENComm library version 1.01 or above.  
+
+  What's New in Rel. 2.6.5
+  --------------------------
+    - Bugfix on 'CAEN_DGTZ_SetChannelEnableMask' for x761 boards
+    - Bugfix on 'CAEN_DGTZ_SWStartAcquisition' in ARM ONLY mode
+  
+  What's New in Rel. 2.6.4
+  --------------------------
+    - Bugfix on 'CAEN_DGTZ_SetChannelSelfTrigger' for x730 boards on channels >= 8
+  
+  What's New in Rel. 2.6.3
+  --------------------------
+    - Bugfix regarding memory allocation for X730 boards with DPP
+  
+  What's New in Rel. 2.6.2
+  --------------------------
+    - Added support to models V(X)1730D
+    - Bug fix on threshold set for V1743 boards
+    - Other minor bugfixes
+  
+  What's New in Rel. 2.6.1
+  --------------------------
+    - Added function CAEN_DGTZ_Calibrate(handle) to perform ADC calibration
+    - Bugfix on function CAEN_DGTZ_SetChannelSelfTrigger for X730 boards
+    - Bugfix on DES mode enable/disable for X731 boards
+  
+  What's New in Rel. 2.6.0
+  --------------------------
+    - Added codes for V(X)1730C
+    - Added support to V1730 DPP-PHA
+    - Fixed pretrigger management for various boards
+    - Improved Reset() reliability
+    - Added support to DT5780SD boards
+    - Various bugfixes
+  
+  What's New in Rel. 2.5.2
+  --------------------------
+    - Added codes for DT5790P/M boards
+    - Added codes for V(X)1740(A/C)
+    - Added Trigger digital probe for x730 with DPP-PSD
+    - Bugfixes on x761 boards
+    
+  What's New in Rel. 2.5.1
+  --------------------------
+    - Added support to x781 models with STD. and DPP-PHA firmwares.
+    - Bugfix on bslthr parameter for DPP-PSD x730
+  
+  What's New in Rel. 2.5.0
+  --------------------------
+    - New functions 'CAEN_DGTZ_[Set|Get]DecimationFactor' for x740 decimation feature.
+	- Bugfixes for x743 boards
+    - Deprecated functions 'CAEN_DGTZ_[Set|Get]DPP_[PHA|PSD|CI]_VirtualProbe'
+    - New functions 'CAEN_DGTZ_[Set|Get]DPP_VirtualProbe' for probe selection
+    - New function 'CAEN_DGTZ_GetDPP_SupportedVirtualProbes' to get the list
+      of board supported probes for a specific trace
+    - New function 'CAEN_DGTZ_GetDPP_VirtualProbeName' to get the name of a
+      specified probe
   
   What's New in Rel. 2.4.6
   --------------------------
@@ -36,19 +93,20 @@
     - Added x730B board models for Desktop and NIM form factors
     - Bugfixes for x724 DPP-PHA
     - Bugfixes for x730 DPP-PSD
-  
+    - Bugfix regarding OpticalLynk Connection type (see enum CAEN_DGTZ_ConnectionType)
+
   What's New in Rel. 2.4.5
   --------------------------
     - Add support to x743 boards
     - Bugfix on V1730 boards with only an A747 board
-  
+	
   What's New in Rel. 2.4.4
   --------------------------
     - Preliminary support to x743 boards
     - Handle of CAENComm library is now available in BoardInfo structure
     - Board's license is now available in BoardInfo structure
     - The PileUp bit (15) of the "Energy" value for DPP-PHA is not cut anymore
-  
+    
   What's New in Rel. 2.4.3
   --------------------------
     - Bugfixes for X740 boards

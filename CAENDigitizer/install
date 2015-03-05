@@ -25,7 +25,7 @@ then
 	exit 0
 else
 	LIBPATH="lib/i686"
-	LIBNAME="libCAENDigitizer.so.2.4.6"
+	LIBNAME="libCAENDigitizer.so.2.6.5"
 	DESTDIR="/usr/lib"
 	install "$LIBPATH/$LIBNAME" "$DESTDIR"
 	ln -sf "$DESTDIR/$LIBNAME" "$DESTDIR/libCAENDigitizer.so"

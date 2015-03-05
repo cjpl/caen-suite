@@ -8,6 +8,12 @@
   WaveDump Release Notes
 
   -----------------------------------------------------------------------------
+  Rel. 3.6.6 - Updated configure script to manage the correct CAENDigitizer dependency.
+  Rel. 3.6.5 - Bugfix for 'CHANNEL_TRIGGER' parameter management for X730 boards
+             - Bugfix on ADC calibration for X730 boards.
+             - Calibration is now performed at the beginning of acquisition.
+			 - Over Temperature Control (X730 only)
+  Rel. 3.6.4 - Added decimation factor for X740 family boards
   Rel. 3.6.3 - Bugfixes from CAENDigitizer 2.4.6
              - Removed deprecated PCI link type and used new one
   Rel. 3.6.2 - Disabled option 'h' for x742 boards (not managed for float samples)
@@ -21,16 +27,15 @@
              - Various Bugfixes and Improvements for X742 boards
              - Improved configuration file management when reloading the digitizer's configuration.
   Rel. 3.5.4 - Bug Fix for x724 boards using ZLE feature
-  Rel. 3.5.3 - Fixed GNUPlot default path
-             - Compatibility for 8-bit FFT
+  Rel. 3.5.3 - Compatibility for 8-bit FFT
 		     - Bug Fix on DES mode for V1731 boards
 			 - Bug Fix for Plot Group on x742 boards (Plot of disabled groups)
   Rel. 3.5.2 - Bug Fix on single event saving
 		     - Bug Fix on binary file saving for X742 boards
   Rel. 3.5.1 - Bug Fix on IRQ readout
   Rel. 3.5   - Added support for XX761 Board family
-  Rel. 3.2   - Add support for X742 boards
-  Rel. 3.1   - Various bugfix
+  Rel. 3.2   - Added support vor XX742 Board family
+  Rel. 3.1   - Fix bugs on data acquisition
   Rel. 3.0   - Modified the configuration file using the CAENDigitizer function
 		     - Fix bugs on data acquisition on XX740 Board family
   Rel. 2.2   - Added isupport for XX751 Board family
@@ -56,7 +61,7 @@
   System Requirements
   -------------------
 
-  - CAEN Digitizer library
+  - CAEN Digitizer library >= 1.2
   - Linux kernel 2.4 or 2.6
   - GNUplot 4.2 (www.gnuplot.org)
 

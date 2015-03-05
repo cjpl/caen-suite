@@ -37,8 +37,8 @@
 *  Default config file is "WaveDumpConfig.txt"
 ******************************************************************************/
 
-#define WaveDump_Release        "3.6.3_20140402"
-#define WaveDump_Release_Date   "Apr 2014"
+#define WaveDump_Release        "3.6.6_20150127"
+#define WaveDump_Release_Date   "Jan 2015"
 #define DBG_TIME
 
 #include <CAENDigitizer.h>
@@ -64,6 +64,7 @@ typedef enum  {
     ERR_HISTO_MALLOC,
     ERR_UNHANDLED_BOARD,
     ERR_OUTFILE_WRITE,
+	ERR_OVERTEMP,
 
     ERR_DUMMY_LAST,
 } ERROR_CODES;
@@ -82,6 +83,7 @@ static char ErrMsg[ERR_DUMMY_LAST][100] = {
     "Can't allocate the memory fro the histograms",     /* ERR_HISTO_MALLOC */
     "Unhandled board type",                             /* ERR_UNHANDLED_BOARD */
     "Output file write error",                          /* ERR_OUTFILE_WRITE */
+	"Over Temperature",									/* ERR_OVERTEMP */
 
 };
 
@@ -124,32 +126,34 @@ static long get_time()
 */
 int GetMoreBoardInfo(int handle, CAEN_DGTZ_BoardInfo_t BoardInfo, WaveDumpConfig_t *WDcfg)
 {
-	int ret;
+    int ret;
     switch(BoardInfo.FamilyCode) {
         CAEN_DGTZ_DRS4Frequency_t freq;
 
-        case CAEN_DGTZ_XX724_FAMILY_CODE: WDcfg->Nbit = 14; WDcfg->Ts = 10.0; break;
-        case CAEN_DGTZ_XX720_FAMILY_CODE: WDcfg->Nbit = 12; WDcfg->Ts = 4.0;  break;
-        case CAEN_DGTZ_XX721_FAMILY_CODE: WDcfg->Nbit =  8; WDcfg->Ts = 2.0;  break;
-        case CAEN_DGTZ_XX731_FAMILY_CODE: WDcfg->Nbit =  8; WDcfg->Ts = 2.0;  break;
-        case CAEN_DGTZ_XX751_FAMILY_CODE: WDcfg->Nbit = 10; WDcfg->Ts = 1.0;  break;
-        case CAEN_DGTZ_XX761_FAMILY_CODE: WDcfg->Nbit = 10; WDcfg->Ts = 0.25;  break;
-        case CAEN_DGTZ_XX740_FAMILY_CODE: WDcfg->Nbit = 12; WDcfg->Ts = 16.0; break;
-        case CAEN_DGTZ_XX730_FAMILY_CODE: WDcfg->Nbit = 14; WDcfg->Ts = 2.0; break;
-        case CAEN_DGTZ_XX742_FAMILY_CODE: 
+    case CAEN_DGTZ_XX724_FAMILY_CODE:
+    case CAEN_DGTZ_XX781_FAMILY_CODE:
+        WDcfg->Nbit = 14; WDcfg->Ts = 10.0; break;
+    case CAEN_DGTZ_XX720_FAMILY_CODE: WDcfg->Nbit = 12; WDcfg->Ts = 4.0;  break;
+    case CAEN_DGTZ_XX721_FAMILY_CODE: WDcfg->Nbit =  8; WDcfg->Ts = 2.0;  break;
+    case CAEN_DGTZ_XX731_FAMILY_CODE: WDcfg->Nbit =  8; WDcfg->Ts = 2.0;  break;
+    case CAEN_DGTZ_XX751_FAMILY_CODE: WDcfg->Nbit = 10; WDcfg->Ts = 1.0;  break;
+    case CAEN_DGTZ_XX761_FAMILY_CODE: WDcfg->Nbit = 10; WDcfg->Ts = 0.25;  break;
+    case CAEN_DGTZ_XX740_FAMILY_CODE: WDcfg->Nbit = 12; WDcfg->Ts = 16.0; break;
+    case CAEN_DGTZ_XX730_FAMILY_CODE: WDcfg->Nbit = 14; WDcfg->Ts = 2.0; break;
+    case CAEN_DGTZ_XX742_FAMILY_CODE: 
         WDcfg->Nbit = 12; 
         if ((ret = CAEN_DGTZ_GetDRS4SamplingFrequency(handle, &freq)) != CAEN_DGTZ_Success) return CAEN_DGTZ_CommError;
-		switch (freq) {
-		case CAEN_DGTZ_DRS4_1GHz:
-				WDcfg->Ts = 1.0;
-			break;
-		case CAEN_DGTZ_DRS4_2_5GHz:
-				WDcfg->Ts = (float)0.4;
-			break;
-		case CAEN_DGTZ_DRS4_5GHz:
-				WDcfg->Ts = (float)0.2;
-			break;
-		}
+        switch (freq) {
+        case CAEN_DGTZ_DRS4_1GHz:
+            WDcfg->Ts = 1.0;
+            break;
+        case CAEN_DGTZ_DRS4_2_5GHz:
+            WDcfg->Ts = (float)0.4;
+            break;
+        case CAEN_DGTZ_DRS4_5GHz:
+            WDcfg->Ts = (float)0.2;
+            break;
+        }
         switch(BoardInfo.FormFactor) {
         case CAEN_DGTZ_VME64_FORM_FACTOR:
         case CAEN_DGTZ_VME64X_FORM_FACTOR:
@@ -162,68 +166,69 @@ int GetMoreBoardInfo(int handle, CAEN_DGTZ_BoardInfo_t BoardInfo, WaveDumpConfig
             break;
         }
         break;
-        default: return -1;
+    default: return -1;
     }
     if (((BoardInfo.FamilyCode == CAEN_DGTZ_XX751_FAMILY_CODE) ||
-         (BoardInfo.FamilyCode == CAEN_DGTZ_XX731_FAMILY_CODE) ) && WDcfg->DesMode)
+        (BoardInfo.FamilyCode == CAEN_DGTZ_XX731_FAMILY_CODE) ) && WDcfg->DesMode)
         WDcfg->Ts /= 2;
 
     switch(BoardInfo.FamilyCode) {
-        case CAEN_DGTZ_XX724_FAMILY_CODE:
-        case CAEN_DGTZ_XX720_FAMILY_CODE:
-        case CAEN_DGTZ_XX721_FAMILY_CODE:
-        case CAEN_DGTZ_XX751_FAMILY_CODE:
-        case CAEN_DGTZ_XX761_FAMILY_CODE:
-        case CAEN_DGTZ_XX731_FAMILY_CODE:
-            switch(BoardInfo.FormFactor) {
-                case CAEN_DGTZ_VME64_FORM_FACTOR:
-                case CAEN_DGTZ_VME64X_FORM_FACTOR:
-                    WDcfg->Nch = 8;
-                    break;
-                case CAEN_DGTZ_DESKTOP_FORM_FACTOR:
-                case CAEN_DGTZ_NIM_FORM_FACTOR:
-                    WDcfg->Nch = 4;
-                    break;
-                }
+    case CAEN_DGTZ_XX724_FAMILY_CODE:
+    case CAEN_DGTZ_XX781_FAMILY_CODE:
+    case CAEN_DGTZ_XX720_FAMILY_CODE:
+    case CAEN_DGTZ_XX721_FAMILY_CODE:
+    case CAEN_DGTZ_XX751_FAMILY_CODE:
+    case CAEN_DGTZ_XX761_FAMILY_CODE:
+    case CAEN_DGTZ_XX731_FAMILY_CODE:
+        switch(BoardInfo.FormFactor) {
+        case CAEN_DGTZ_VME64_FORM_FACTOR:
+        case CAEN_DGTZ_VME64X_FORM_FACTOR:
+            WDcfg->Nch = 8;
             break;
-        case CAEN_DGTZ_XX730_FAMILY_CODE:
-            switch(BoardInfo.FormFactor) {
-                case CAEN_DGTZ_VME64_FORM_FACTOR:
-                case CAEN_DGTZ_VME64X_FORM_FACTOR:
-                    WDcfg->Nch = 16;
-                    break;
-                case CAEN_DGTZ_DESKTOP_FORM_FACTOR:
-                case CAEN_DGTZ_NIM_FORM_FACTOR:
-                    WDcfg->Nch = 8;
-                    break;
-                }
+        case CAEN_DGTZ_DESKTOP_FORM_FACTOR:
+        case CAEN_DGTZ_NIM_FORM_FACTOR:
+            WDcfg->Nch = 4;
             break;
-        case CAEN_DGTZ_XX740_FAMILY_CODE:
-            switch( BoardInfo.FormFactor) {
-            case CAEN_DGTZ_VME64_FORM_FACTOR:
-            case CAEN_DGTZ_VME64X_FORM_FACTOR:
-                WDcfg->Nch = 64;
-                break;
-            case CAEN_DGTZ_DESKTOP_FORM_FACTOR:
-            case CAEN_DGTZ_NIM_FORM_FACTOR:
-                WDcfg->Nch = 32;
-                break;
-            }
+        }
+        break;
+    case CAEN_DGTZ_XX730_FAMILY_CODE:
+        switch(BoardInfo.FormFactor) {
+        case CAEN_DGTZ_VME64_FORM_FACTOR:
+        case CAEN_DGTZ_VME64X_FORM_FACTOR:
+            WDcfg->Nch = 16;
             break;
-        case CAEN_DGTZ_XX742_FAMILY_CODE:
-            switch( BoardInfo.FormFactor) {
-            case CAEN_DGTZ_VME64_FORM_FACTOR:
-            case CAEN_DGTZ_VME64X_FORM_FACTOR:
-                WDcfg->Nch = 36;
-                break;
-            case CAEN_DGTZ_DESKTOP_FORM_FACTOR:
-            case CAEN_DGTZ_NIM_FORM_FACTOR:
-                WDcfg->Nch = 16;
-                break;
-            }
+        case CAEN_DGTZ_DESKTOP_FORM_FACTOR:
+        case CAEN_DGTZ_NIM_FORM_FACTOR:
+            WDcfg->Nch = 8;
             break;
-        default:
-            return -1;
+        }
+        break;
+    case CAEN_DGTZ_XX740_FAMILY_CODE:
+        switch( BoardInfo.FormFactor) {
+        case CAEN_DGTZ_VME64_FORM_FACTOR:
+        case CAEN_DGTZ_VME64X_FORM_FACTOR:
+            WDcfg->Nch = 64;
+            break;
+        case CAEN_DGTZ_DESKTOP_FORM_FACTOR:
+        case CAEN_DGTZ_NIM_FORM_FACTOR:
+            WDcfg->Nch = 32;
+            break;
+        }
+        break;
+    case CAEN_DGTZ_XX742_FAMILY_CODE:
+        switch( BoardInfo.FormFactor) {
+        case CAEN_DGTZ_VME64_FORM_FACTOR:
+        case CAEN_DGTZ_VME64X_FORM_FACTOR:
+            WDcfg->Nch = 36;
+            break;
+        case CAEN_DGTZ_DESKTOP_FORM_FACTOR:
+        case CAEN_DGTZ_NIM_FORM_FACTOR:
+            WDcfg->Nch = 16;
+            break;
+        }
+        break;
+    default:
+        return -1;
     }
     return 0;
 }
@@ -266,24 +271,29 @@ int ProgramDigitizer(int handle, WaveDumpConfig_t WDcfg, CAEN_DGTZ_BoardInfo_t B
 
     /* reset the digitizer */
     ret |= CAEN_DGTZ_Reset(handle);
-	if (ret != 0) {
-		printf("Error: Unable to reset digitizer.\nPlease reset digitizer manually then restart the program\n");
-		return -1;
-	}
-    
+    if (ret != 0) {
+        printf("Error: Unable to reset digitizer.\nPlease reset digitizer manually then restart the program\n");
+        return -1;
+    }
+
     // Set the waveform test bit for debugging
     if (WDcfg.TestPattern)
         ret |= CAEN_DGTZ_WriteRegister(handle, CAEN_DGTZ_BROAD_CH_CONFIGBIT_SET_ADD, 1<<3);
-	// custom setting for X742 boards
-	if (BoardInfo.FamilyCode == CAEN_DGTZ_XX742_FAMILY_CODE) {
-		ret |= CAEN_DGTZ_SetFastTriggerDigitizing(handle,WDcfg.FastTriggerEnabled);
-		ret |= CAEN_DGTZ_SetFastTriggerMode(handle,WDcfg.FastTriggerMode);
-	}
+    // custom setting for X742 boards
+    if (BoardInfo.FamilyCode == CAEN_DGTZ_XX742_FAMILY_CODE) {
+        ret |= CAEN_DGTZ_SetFastTriggerDigitizing(handle,WDcfg.FastTriggerEnabled);
+        ret |= CAEN_DGTZ_SetFastTriggerMode(handle,WDcfg.FastTriggerMode);
+    }
     if ((BoardInfo.FamilyCode == CAEN_DGTZ_XX751_FAMILY_CODE) || (BoardInfo.FamilyCode == CAEN_DGTZ_XX731_FAMILY_CODE)) {
         ret |= CAEN_DGTZ_SetDESMode(handle, WDcfg.DesMode);
     }
     ret |= CAEN_DGTZ_SetRecordLength(handle, WDcfg.RecordLength);
     ret |= CAEN_DGTZ_GetRecordLength(handle, &WDcfg.RecordLength);
+
+    if (BoardInfo.FamilyCode == CAEN_DGTZ_XX740_FAMILY_CODE) {
+        ret |= CAEN_DGTZ_SetDecimationFactor(handle, WDcfg.DecimationFactor);
+    }
+
     ret |= CAEN_DGTZ_SetPostTriggerSize(handle, WDcfg.PostTrigger);
     if(BoardInfo.FamilyCode != CAEN_DGTZ_XX742_FAMILY_CODE)
         ret |= CAEN_DGTZ_GetPostTriggerSize(handle, &WDcfg.PostTrigger);
@@ -291,10 +301,10 @@ int ProgramDigitizer(int handle, WaveDumpConfig_t WDcfg, CAEN_DGTZ_BoardInfo_t B
     if( WDcfg.InterruptNumEvents > 0) {
         // Interrupt handling
         if( ret |= CAEN_DGTZ_SetInterruptConfig( handle, CAEN_DGTZ_ENABLE,
-                                                 VME_INTERRUPT_LEVEL, VME_INTERRUPT_STATUS_ID,
-                                                 WDcfg.InterruptNumEvents, INTERRUPT_MODE)!= CAEN_DGTZ_Success) {
-            printf( "\nError configuring interrupts. Interrupts disabled\n\n");
-            WDcfg.InterruptNumEvents = 0;
+            VME_INTERRUPT_LEVEL, VME_INTERRUPT_STATUS_ID,
+            WDcfg.InterruptNumEvents, INTERRUPT_MODE)!= CAEN_DGTZ_Success) {
+                printf( "\nError configuring interrupts. Interrupts disabled\n\n");
+                WDcfg.InterruptNumEvents = 0;
         }
     }
     ret |= CAEN_DGTZ_SetMaxNumEventsBLT(handle, WDcfg.NumEvents);
@@ -305,42 +315,71 @@ int ProgramDigitizer(int handle, WaveDumpConfig_t WDcfg, CAEN_DGTZ_BoardInfo_t B
         ret |= CAEN_DGTZ_SetGroupEnableMask(handle, WDcfg.EnableMask);
         for(i=0; i<(WDcfg.Nch/8); i++) {
             if (WDcfg.EnableMask & (1<<i)) {
-				if (BoardInfo.FamilyCode == CAEN_DGTZ_XX742_FAMILY_CODE) {
-					for(j=0; j<8; j++) {
-						if (WDcfg.DCoffsetGrpCh[i][j] != -1)
-							ret |= CAEN_DGTZ_SetChannelDCOffset(handle,(i*8)+j, WDcfg.DCoffsetGrpCh[i][j]);
-						else
-						    ret |= CAEN_DGTZ_SetChannelDCOffset(handle,(i*8)+j, WDcfg.DCoffset[i]);
-						}
-				}
-				else {
-					ret |= CAEN_DGTZ_SetGroupDCOffset(handle, i, WDcfg.DCoffset[i]);
-					ret |= CAEN_DGTZ_SetGroupSelfTrigger(handle, WDcfg.ChannelTriggerMode[i], (1<<i));
-					ret |= CAEN_DGTZ_SetGroupTriggerThreshold(handle, i, WDcfg.Threshold[i]);
-					ret |= CAEN_DGTZ_SetChannelGroupMask(handle, i, WDcfg.GroupTrgEnableMask[i]);
-				} 
+                if (BoardInfo.FamilyCode == CAEN_DGTZ_XX742_FAMILY_CODE) {
+                    for(j=0; j<8; j++) {
+                        if (WDcfg.DCoffsetGrpCh[i][j] != -1)
+                            ret |= CAEN_DGTZ_SetChannelDCOffset(handle,(i*8)+j, WDcfg.DCoffsetGrpCh[i][j]);
+                        else
+                            ret |= CAEN_DGTZ_SetChannelDCOffset(handle,(i*8)+j, WDcfg.DCoffset[i]);
+                    }
+                }
+                else {
+                    ret |= CAEN_DGTZ_SetGroupDCOffset(handle, i, WDcfg.DCoffset[i]);
+                    ret |= CAEN_DGTZ_SetGroupSelfTrigger(handle, WDcfg.ChannelTriggerMode[i], (1<<i));
+                    ret |= CAEN_DGTZ_SetGroupTriggerThreshold(handle, i, WDcfg.Threshold[i]);
+                    ret |= CAEN_DGTZ_SetChannelGroupMask(handle, i, WDcfg.GroupTrgEnableMask[i]);
+                } 
                 ret |= CAEN_DGTZ_SetTriggerPolarity(handle, i, WDcfg.TriggerEdge);
             }
         }
     } else {
         ret |= CAEN_DGTZ_SetChannelEnableMask(handle, WDcfg.EnableMask);
-        for(i=0; i<WDcfg.Nch; i++) {
+        for (i = 0; i < WDcfg.Nch; i++) {
             if (WDcfg.EnableMask & (1<<i)) {
                 ret |= CAEN_DGTZ_SetChannelDCOffset(handle, i, WDcfg.DCoffset[i]);
-                ret |= CAEN_DGTZ_SetChannelSelfTrigger(handle, WDcfg.ChannelTriggerMode[i], (1<<i));
+                if (BoardInfo.FamilyCode != CAEN_DGTZ_XX730_FAMILY_CODE)
+                    ret |= CAEN_DGTZ_SetChannelSelfTrigger(handle, WDcfg.ChannelTriggerMode[i], (1<<i));
                 ret |= CAEN_DGTZ_SetChannelTriggerThreshold(handle, i, WDcfg.Threshold[i]);
                 ret |= CAEN_DGTZ_SetTriggerPolarity(handle, i, WDcfg.TriggerEdge);
             }
         }
+        if (BoardInfo.FamilyCode == CAEN_DGTZ_XX730_FAMILY_CODE) {
+            // channel pair settings for x730 boards
+            for (i = 0; i < WDcfg.Nch; i += 2) {
+                if (WDcfg.EnableMask & (0x3 << i)) {
+                    CAEN_DGTZ_TriggerMode_t mode = WDcfg.ChannelTriggerMode[i];
+                    uint32_t pair_chmask = 0;
+
+                    // Build mode and relevant channelmask. The behaviour is that,
+                    // if the triggermode of one channel of the pair is DISABLED,
+                    // this channel doesn't take part to the trigger generation.
+                    // Otherwise, if both are different from DISABLED, the one of
+                    // the even channel is used.
+                    if (WDcfg.ChannelTriggerMode[i] != CAEN_DGTZ_TRGMODE_DISABLED) {
+                        if (WDcfg.ChannelTriggerMode[i + 1] == CAEN_DGTZ_TRGMODE_DISABLED)
+                            pair_chmask = (0x1 << i);
+                        else
+                            pair_chmask = (0x3 << i);
+                    }
+                    else {
+                        mode = WDcfg.ChannelTriggerMode[i + 1];
+                        pair_chmask = (0x2 << i);
+                    }
+
+                    pair_chmask &= WDcfg.EnableMask;
+                    ret |= CAEN_DGTZ_SetChannelSelfTrigger(handle, mode, pair_chmask);
+                }
+            }
+        }
     }
-	if (BoardInfo.FamilyCode == CAEN_DGTZ_XX742_FAMILY_CODE) {
-		for(i=0; i<(WDcfg.Nch/8); i++) {
+    if (BoardInfo.FamilyCode == CAEN_DGTZ_XX742_FAMILY_CODE) {
+        for(i=0; i<(WDcfg.Nch/8); i++) {
             ret |= CAEN_DGTZ_SetDRS4SamplingFrequency(handle, WDcfg.DRS4Frequency);
-			ret |= CAEN_DGTZ_SetGroupFastTriggerDCOffset(handle,i,WDcfg.FTDCoffset[i]);
-			ret |= CAEN_DGTZ_SetGroupFastTriggerThreshold(handle,i,WDcfg.FTThreshold[i]);
-		}
-	}
-    
+            ret |= CAEN_DGTZ_SetGroupFastTriggerDCOffset(handle,i,WDcfg.FTDCoffset[i]);
+            ret |= CAEN_DGTZ_SetGroupFastTriggerThreshold(handle,i,WDcfg.FTThreshold[i]);
+        }
+    }
+
     /* execute generic write commands */
     for(i=0; i<WDcfg.GWn; i++)
         ret |= WriteRegisterBitmask(handle, WDcfg.GWaddr[i], WDcfg.GWdata[i], WDcfg.GWmask[i]);
@@ -367,7 +406,7 @@ void GoToNextEnabledGroup(WaveDumpRun_t *WDrun, WaveDumpConfig_t *WDcfg) {
             printf("Plot group set to %d\n", WDrun->GroupPlotIndex);
         }
     }
-	ClearPlot();
+    ClearPlot();
 }
 
 /*! \fn      void CheckKeyboardCommands(WaveDumpRun_t *WDrun)
@@ -395,13 +434,13 @@ void CheckKeyboardCommands(int handle, WaveDumpRun_t *WDrun, WaveDumpConfig_t *W
                 printf("Channel %d disabled for plotting\n", ch + WDrun->GroupPlotIndex*8);
         } else {
             /*if( !( WDcfg->EnableMask & (1 << ch))) {
-                printf("Channel %d not enabled for acquisition\n", ch);
+            printf("Channel %d not enabled for acquisition\n", ch);
             } else {
-                WDrun->ChannelPlotMask ^= (1 << ch);
-                if (WDrun->ChannelPlotMask & (1 << ch))
-                    printf("Channel %d enabled for plotting\n", ch);
-                else
-                    printf("Channel %d disabled for plotting\n", ch);
+            WDrun->ChannelPlotMask ^= (1 << ch);
+            if (WDrun->ChannelPlotMask & (1 << ch))
+            printf("Channel %d enabled for plotting\n", ch);
+            else
+            printf("Channel %d disabled for plotting\n", ch);
             }*/
             WDrun->ChannelPlotMask ^= (1 << ch);
             if (WDrun->ChannelPlotMask & (1 << ch))
@@ -411,106 +450,112 @@ void CheckKeyboardCommands(int handle, WaveDumpRun_t *WDrun, WaveDumpConfig_t *W
         }
     } else {
         switch(c) {
-            case 'g' :
-                // Update the group plot index
-                if ((WDcfg->EnableMask) && (WDcfg->Nch>8))
-                    GoToNextEnabledGroup(WDrun, WDcfg);
-                /*if ((WDcfg->EnableMask) && (WDcfg->Nch>8)) {
-                    int orgPlotIndex = WDrun->GroupPlotIndex;
-                    do {
-                        WDrun->GroupPlotIndex = (++WDrun->GroupPlotIndex)%(WDcfg->Nch/8);
-                    } while( !((1 << WDrun->GroupPlotIndex)& WDcfg->EnableMask));
-                    if( WDrun->GroupPlotIndex != orgPlotIndex) {
-                        printf("Plot group set to %d\n", WDrun->GroupPlotIndex);
-                    }
+        case 'g' :
+            // Update the group plot index
+            if ((WDcfg->EnableMask) && (WDcfg->Nch>8))
+                GoToNextEnabledGroup(WDrun, WDcfg);
+            /*if ((WDcfg->EnableMask) && (WDcfg->Nch>8)) {
+            int orgPlotIndex = WDrun->GroupPlotIndex;
+            do {
+            WDrun->GroupPlotIndex = (++WDrun->GroupPlotIndex)%(WDcfg->Nch/8);
+            } while( !((1 << WDrun->GroupPlotIndex)& WDcfg->EnableMask));
+            if( WDrun->GroupPlotIndex != orgPlotIndex) {
+            printf("Plot group set to %d\n", WDrun->GroupPlotIndex);
+            }
+            }
+            ClearPlot();*/
+            break;
+        case 'q' :
+            WDrun->Quit = 1;
+            break;
+        case 'R' :
+            WDrun->Restart = 1;
+            break;
+        case 't' :
+            if (!WDrun->ContinuousTrigger) {
+                CAEN_DGTZ_SendSWtrigger(handle);
+                printf("Single Software Trigger issued\n");
+            }
+            break;
+        case 'T' :
+            WDrun->ContinuousTrigger ^= 1;
+            if (WDrun->ContinuousTrigger)
+                printf("Continuous trigger is enabled\n");
+            else
+                printf("Continuous trigger is disabled\n");
+            break;
+        case 'P' :
+            if (WDrun->ChannelPlotMask == 0)
+                printf("No channel enabled for plotting\n");
+            else
+                WDrun->ContinuousPlot ^= 1;
+            break;
+        case 'p' :
+            if (WDrun->ChannelPlotMask == 0)
+                printf("No channel enabled for plotting\n");
+            else
+                WDrun->SinglePlot = 1;
+            break;
+        case 'f' :
+            WDrun->PlotType = (WDrun->PlotType == PLOT_FFT) ? PLOT_WAVEFORMS : PLOT_FFT;
+            WDrun->SetPlotOptions = 1;
+            break;
+        case 'h' :
+            WDrun->PlotType = (WDrun->PlotType == PLOT_HISTOGRAM) ? PLOT_WAVEFORMS : PLOT_HISTOGRAM;
+            WDrun->RunHisto = (WDrun->PlotType == PLOT_HISTOGRAM);
+            WDrun->SetPlotOptions = 1;
+            break;
+        case 'w' :
+            if (!WDrun->ContinuousWrite)
+                WDrun->SingleWrite = 1;
+            break;
+        case 'W' :
+            WDrun->ContinuousWrite ^= 1;
+            if (WDrun->ContinuousWrite)
+                printf("Continuous writing is enabled\n");
+            else
+                printf("Continuous writing is disabled\n");
+            break;
+        case 's' :
+            if (WDrun->AcqRun == 0) {
+                // Avoid calibration for X731 (it is done automatically when
+                // switching DES mode enablement.
+                if (BoardInfo.FamilyCode != CAEN_DGTZ_XX731_FAMILY_CODE) {
+                    if (CAEN_DGTZ_Calibrate(handle) == CAEN_DGTZ_Success)
+                        printf("Calibration Done.\n");
                 }
-				ClearPlot();*/
-                break;
-            case 'q' :
-                WDrun->Quit = 1;
-                break;
-            case 'R' :
-                WDrun->Restart = 1;
-                break;
-            case 't' :
-                if (!WDrun->ContinuousTrigger) {
-                    CAEN_DGTZ_SendSWtrigger(handle);
-                    printf("Single Software Trigger issued\n");
-                }
-                break;
-            case 'T' :
-                WDrun->ContinuousTrigger ^= 1;
-                if (WDrun->ContinuousTrigger)
-                    printf("Continuous trigger is enabled\n");
-                else
-                    printf("Continuous trigger is disabled\n");
-                break;
-            case 'P' :
-                if (WDrun->ChannelPlotMask == 0)
-                    printf("No channel enabled for plotting\n");
-                else
-                    WDrun->ContinuousPlot ^= 1;
-                break;
-            case 'p' :
-                if (WDrun->ChannelPlotMask == 0)
-                    printf("No channel enabled for plotting\n");
-                else
-                    WDrun->SinglePlot = 1;
-                break;
-            case 'f' :
-                WDrun->PlotType = (WDrun->PlotType == PLOT_FFT) ? PLOT_WAVEFORMS : PLOT_FFT;
-                WDrun->SetPlotOptions = 1;
-                break;
-            case 'h' :
-                WDrun->PlotType = (WDrun->PlotType == PLOT_HISTOGRAM) ? PLOT_WAVEFORMS : PLOT_HISTOGRAM;
-                WDrun->RunHisto = (WDrun->PlotType == PLOT_HISTOGRAM);
-                WDrun->SetPlotOptions = 1;
-                break;
-            case 'w' :
-                if (!WDrun->ContinuousWrite)
-                    WDrun->SingleWrite = 1;
-                break;
-            case 'W' :
-                WDrun->ContinuousWrite ^= 1;
-                if (WDrun->ContinuousWrite)
-                    printf("Continuous writing is enabled\n");
-                else
-                    printf("Continuous writing is disabled\n");
-                break;
-            case 's' :
-                if (WDrun->AcqRun == 0) {
-                    printf("Acquisition started\n");
-                    CAEN_DGTZ_SWStartAcquisition(handle);
-                    WDrun->AcqRun = 1;
-                } else {
-                    printf("Acquisition stopped\n");
-                    CAEN_DGTZ_SWStopAcquisition(handle);
-                    WDrun->AcqRun = 0;
-                }
-                break;
-            case ' ' :
-                printf("\n                            Bindkey help                                \n");
-				printf("--------------------------------------------------------------------------\n");;
-                printf("  [q]   Quit\n");
-                printf("  [R]   Reload configuration file and restart\n");
-                printf("  [s]   Start/Stop acquisition\n");
-                printf("  [t]   Send a software trigger (single shot)\n");
-                printf("  [T]   Enable/Disable continuous software trigger\n");
-                printf("  [w]   Write one event to output file\n");
-                printf("  [W]   Enable/Disable continuous writing to output file\n");
-                printf("  [p]   Plot one event\n");
-                printf("  [P]   Enable/Disable continuous plot\n");
-                printf("  [f]   Toggle between FFT and Waveform plot\n");
-                printf("  [h]   Toggle between Histogram and Waveform plot\n");
-                printf("  [g]   Change the index of the group to plot (XX740 family)\n");
-                printf(" [0-7]  Enable/Disable one channel on the plot\n");
-                printf("        For x740 family this is the plotted group's relative channel index\n");
-                printf("[SPACE] This help\n");
-				printf("--------------------------------------------------------------------------\n");
-                printf("Press a key to continue\n");
-                getch();
-                break;
-            default :   break;
+                printf("Acquisition started\n");
+                CAEN_DGTZ_SWStartAcquisition(handle);
+                WDrun->AcqRun = 1;
+            } else {
+                printf("Acquisition stopped\n");
+                CAEN_DGTZ_SWStopAcquisition(handle);
+                WDrun->AcqRun = 0;
+            }
+            break;
+        case ' ' :
+            printf("\n                            Bindkey help                                \n");
+            printf("--------------------------------------------------------------------------\n");;
+            printf("  [q]   Quit\n");
+            printf("  [R]   Reload configuration file and restart\n");
+            printf("  [s]   Start/Stop acquisition\n");
+            printf("  [t]   Send a software trigger (single shot)\n");
+            printf("  [T]   Enable/Disable continuous software trigger\n");
+            printf("  [w]   Write one event to output file\n");
+            printf("  [W]   Enable/Disable continuous writing to output file\n");
+            printf("  [p]   Plot one event\n");
+            printf("  [P]   Enable/Disable continuous plot\n");
+            printf("  [f]   Toggle between FFT and Waveform plot\n");
+            printf("  [h]   Toggle between Histogram and Waveform plot\n");
+            printf("  [g]   Change the index of the group to plot (XX740 family)\n");
+            printf(" [0-7]  Enable/Disable one channel on the plot\n");
+            printf("        For x740 family this is the plotted group's relative channel index\n");
+            printf("[SPACE] This help\n");
+            printf("--------------------------------------------------------------------------\n");
+            printf("Press a key to continue\n");
+            getch();
+            break;
+        default :   break;
         }
     }
 }
@@ -619,126 +664,126 @@ int WriteOutputFilesx742(WaveDumpConfig_t *WDcfg, WaveDumpRun_t *WDrun, CAEN_DGT
 {
     int gr,ch, j, ns;
     char trname[10], flag; 
-	for (gr=0;gr<(WDcfg->Nch/8);gr++) {
-		if (Event->GrPresent[gr]) {
-			for(ch=0; ch<9; ch++) {
-				int Size = Event->DataGroup[gr].ChSize[ch];
-				if (Size <= 0) {
-					continue;
-				}
+    for (gr=0;gr<(WDcfg->Nch/8);gr++) {
+        if (Event->GrPresent[gr]) {
+            for(ch=0; ch<9; ch++) {
+                int Size = Event->DataGroup[gr].ChSize[ch];
+                if (Size <= 0) {
+                    continue;
+                }
 
-				// Check the file format type
-				if( WDcfg->OutFileFlags& OFF_BINARY) {
-					// Binary file format
-					uint32_t BinHeader[6];
-					BinHeader[0] = (WDcfg->Nbit == 8) ? Size + 6*sizeof(*BinHeader) : Size*4 + 6*sizeof(*BinHeader);
-					BinHeader[1] = EventInfo->BoardId;
-					BinHeader[2] = EventInfo->Pattern;
-					BinHeader[3] = ch;
-					BinHeader[4] = EventInfo->EventCounter;
-					BinHeader[5] = EventInfo->TriggerTimeTag;
-					if (!WDrun->fout[(gr*9+ch)]) {
-						char fname[100];
-						if ((gr*9+ch) == 8) {
-							sprintf(fname, "TR_%d_0.dat", gr);
-							sprintf(trname,"TR_%d_0",gr);
-							flag =1;
-							}
-							else if ((gr*9+ch) == 17) {
-								sprintf(fname, "TR_0_%d.dat", gr);
-								sprintf(trname,"TR_0_%d",gr);
-								flag =1;
-								}
-								else if ((gr*9+ch) == 26) {
-									sprintf(fname, "TR_0_%d.dat", gr);
-									sprintf(trname,"TR_0_%d",gr);
-									flag =1;
-									}
-									else if ((gr*9+ch) == 35) {
-										sprintf(fname, "TR_1_%d.dat", gr);
-										sprintf(trname,"TR_1_%d",gr);
-										flag =1;
-										}
-										else 	{
-											sprintf(fname, "wave_%d.dat", (gr*8)+ch);
-											flag =0;
-										}
-						if ((WDrun->fout[(gr*9+ch)] = fopen(fname, "wb")) == NULL)
-							return -1;
-					}
-					if( WDcfg->OutFileFlags & OFF_HEADER) {
-						// Write the Channel Header
-						if(fwrite(BinHeader, sizeof(*BinHeader), 6, WDrun->fout[(gr*9+ch)]) != 6) {
-							// error writing to file
-							fclose(WDrun->fout[(gr*9+ch)]);
-							WDrun->fout[(gr*9+ch)]= NULL;
-							return -1;
-						}
-					}
-					ns = (int)fwrite( Event->DataGroup[gr].DataChannel[ch] , 1 , Size*4, WDrun->fout[(gr*9+ch)]) / 4;
-					if (ns != Size) {
-						// error writing to file
-						fclose(WDrun->fout[(gr*9+ch)]);
-						WDrun->fout[(gr*9+ch)]= NULL;
-						return -1;
-					}
-				} else {
-					// Ascii file format
-					if (!WDrun->fout[(gr*9+ch)]) {
-						char fname[100];
-						if ((gr*9+ch) == 8) {
-							sprintf(fname, "TR_%d_0.txt", gr);
-							sprintf(trname,"TR_%d_0",gr);
-							flag =1;
-							}
-							else if ((gr*9+ch) == 17) {
-								sprintf(fname, "TR_0_%d.txt", gr);
-								sprintf(trname,"TR_0_%d",gr);
-								flag =1;
-								}
-								else if ((gr*9+ch) == 26) {
-									sprintf(fname, "TR_0_%d.txt", gr);
-									sprintf(trname,"TR_0_%d",gr);
-									flag =1;
-									}
-									else if ((gr*9+ch) == 35) {
-										sprintf(fname, "TR_1_%d.txt", gr);
-										sprintf(trname,"TR_1_%d",gr);
-										flag =1;
-										}
-										else 	{
-											sprintf(fname, "wave_%d.txt", (gr*8)+ch);
-											flag =0;
-										}
-						if ((WDrun->fout[(gr*9+ch)] = fopen(fname, "w")) == NULL)
-							return -1;
-					}
-					if( WDcfg->OutFileFlags & OFF_HEADER) {
-						// Write the Channel Header
-						fprintf(WDrun->fout[(gr*9+ch)], "Record Length: %d\n", Size);
-						fprintf(WDrun->fout[(gr*9+ch)], "BoardID: %2d\n", EventInfo->BoardId);
-						if (flag)
-						fprintf(WDrun->fout[(gr*9+ch)], "Channel: %s\n",  trname);
-						else
-						fprintf(WDrun->fout[(gr*9+ch)], "Channel: %d\n",  (gr*8)+ ch);
-						fprintf(WDrun->fout[(gr*9+ch)], "Event Number: %d\n", EventInfo->EventCounter);
-						fprintf(WDrun->fout[(gr*9+ch)], "Pattern: 0x%04X\n", EventInfo->Pattern & 0xFFFF);
-						fprintf(WDrun->fout[(gr*9+ch)], "Trigger Time Stamp: %u\n", Event->DataGroup[gr].TriggerTimeTag);
-						fprintf(WDrun->fout[(gr*9+ch)], "DC offset (DAC): 0x%04X\n", WDcfg->DCoffset[ch] & 0xFFFF);
-						fprintf(WDrun->fout[(gr*9+ch)], "Start Index Cell: %d\n", Event->DataGroup[gr].StartIndexCell);
-						flag = 0;
-					}
-					for(j=0; j<Size; j++) {
-						fprintf(WDrun->fout[(gr*9+ch)], "%f\n", Event->DataGroup[gr].DataChannel[ch][j]);
-					}
-				}
-				if (WDrun->SingleWrite) {
-					fclose(WDrun->fout[(gr*9+ch)]);
-					WDrun->fout[(gr*9+ch)]= NULL;
-				}
-			}
-		}
-	}
+                // Check the file format type
+                if( WDcfg->OutFileFlags& OFF_BINARY) {
+                    // Binary file format
+                    uint32_t BinHeader[6];
+                    BinHeader[0] = (WDcfg->Nbit == 8) ? Size + 6*sizeof(*BinHeader) : Size*4 + 6*sizeof(*BinHeader);
+                    BinHeader[1] = EventInfo->BoardId;
+                    BinHeader[2] = EventInfo->Pattern;
+                    BinHeader[3] = ch;
+                    BinHeader[4] = EventInfo->EventCounter;
+                    BinHeader[5] = EventInfo->TriggerTimeTag;
+                    if (!WDrun->fout[(gr*9+ch)]) {
+                        char fname[100];
+                        if ((gr*9+ch) == 8) {
+                            sprintf(fname, "TR_%d_0.dat", gr);
+                            sprintf(trname,"TR_%d_0",gr);
+                            flag =1;
+                        }
+                        else if ((gr*9+ch) == 17) {
+                            sprintf(fname, "TR_0_%d.dat", gr);
+                            sprintf(trname,"TR_0_%d",gr);
+                            flag =1;
+                        }
+                        else if ((gr*9+ch) == 26) {
+                            sprintf(fname, "TR_0_%d.dat", gr);
+                            sprintf(trname,"TR_0_%d",gr);
+                            flag =1;
+                        }
+                        else if ((gr*9+ch) == 35) {
+                            sprintf(fname, "TR_1_%d.dat", gr);
+                            sprintf(trname,"TR_1_%d",gr);
+                            flag =1;
+                        }
+                        else 	{
+                            sprintf(fname, "wave_%d.dat", (gr*8)+ch);
+                            flag =0;
+                        }
+                        if ((WDrun->fout[(gr*9+ch)] = fopen(fname, "wb")) == NULL)
+                            return -1;
+                    }
+                    if( WDcfg->OutFileFlags & OFF_HEADER) {
+                        // Write the Channel Header
+                        if(fwrite(BinHeader, sizeof(*BinHeader), 6, WDrun->fout[(gr*9+ch)]) != 6) {
+                            // error writing to file
+                            fclose(WDrun->fout[(gr*9+ch)]);
+                            WDrun->fout[(gr*9+ch)]= NULL;
+                            return -1;
+                        }
+                    }
+                    ns = (int)fwrite( Event->DataGroup[gr].DataChannel[ch] , 1 , Size*4, WDrun->fout[(gr*9+ch)]) / 4;
+                    if (ns != Size) {
+                        // error writing to file
+                        fclose(WDrun->fout[(gr*9+ch)]);
+                        WDrun->fout[(gr*9+ch)]= NULL;
+                        return -1;
+                    }
+                } else {
+                    // Ascii file format
+                    if (!WDrun->fout[(gr*9+ch)]) {
+                        char fname[100];
+                        if ((gr*9+ch) == 8) {
+                            sprintf(fname, "TR_%d_0.txt", gr);
+                            sprintf(trname,"TR_%d_0",gr);
+                            flag =1;
+                        }
+                        else if ((gr*9+ch) == 17) {
+                            sprintf(fname, "TR_0_%d.txt", gr);
+                            sprintf(trname,"TR_0_%d",gr);
+                            flag =1;
+                        }
+                        else if ((gr*9+ch) == 26) {
+                            sprintf(fname, "TR_0_%d.txt", gr);
+                            sprintf(trname,"TR_0_%d",gr);
+                            flag =1;
+                        }
+                        else if ((gr*9+ch) == 35) {
+                            sprintf(fname, "TR_1_%d.txt", gr);
+                            sprintf(trname,"TR_1_%d",gr);
+                            flag =1;
+                        }
+                        else 	{
+                            sprintf(fname, "wave_%d.txt", (gr*8)+ch);
+                            flag =0;
+                        }
+                        if ((WDrun->fout[(gr*9+ch)] = fopen(fname, "w")) == NULL)
+                            return -1;
+                    }
+                    if( WDcfg->OutFileFlags & OFF_HEADER) {
+                        // Write the Channel Header
+                        fprintf(WDrun->fout[(gr*9+ch)], "Record Length: %d\n", Size);
+                        fprintf(WDrun->fout[(gr*9+ch)], "BoardID: %2d\n", EventInfo->BoardId);
+                        if (flag)
+                            fprintf(WDrun->fout[(gr*9+ch)], "Channel: %s\n",  trname);
+                        else
+                            fprintf(WDrun->fout[(gr*9+ch)], "Channel: %d\n",  (gr*8)+ ch);
+                        fprintf(WDrun->fout[(gr*9+ch)], "Event Number: %d\n", EventInfo->EventCounter);
+                        fprintf(WDrun->fout[(gr*9+ch)], "Pattern: 0x%04X\n", EventInfo->Pattern & 0xFFFF);
+                        fprintf(WDrun->fout[(gr*9+ch)], "Trigger Time Stamp: %u\n", Event->DataGroup[gr].TriggerTimeTag);
+                        fprintf(WDrun->fout[(gr*9+ch)], "DC offset (DAC): 0x%04X\n", WDcfg->DCoffset[ch] & 0xFFFF);
+                        fprintf(WDrun->fout[(gr*9+ch)], "Start Index Cell: %d\n", Event->DataGroup[gr].StartIndexCell);
+                        flag = 0;
+                    }
+                    for(j=0; j<Size; j++) {
+                        fprintf(WDrun->fout[(gr*9+ch)], "%f\n", Event->DataGroup[gr].DataChannel[ch][j]);
+                    }
+                }
+                if (WDrun->SingleWrite) {
+                    fclose(WDrun->fout[(gr*9+ch)]);
+                    WDrun->fout[(gr*9+ch)]= NULL;
+                }
+            }
+        }
+    }
     return 0;
 
 }
@@ -748,7 +793,7 @@ int WriteOutputFilesx742(WaveDumpConfig_t *WDcfg, WaveDumpRun_t *WDrun, CAEN_DGT
 /* ########################################################################### */
 int main(int argc, char *argv[])
 {
-	WaveDumpConfig_t   WDcfg;
+    WaveDumpConfig_t   WDcfg;
     WaveDumpRun_t      WDrun;
     CAEN_DGTZ_ErrorCode ret=0;
     int  handle;
@@ -763,14 +808,14 @@ int main(int argc, char *argv[])
     int nCycles= 0;
     CAEN_DGTZ_BoardInfo_t       BoardInfo;
     CAEN_DGTZ_EventInfo_t       EventInfo;
-    
+
     CAEN_DGTZ_UINT16_EVENT_t    *Event16=NULL; /* generic event struct with 16 bit data (10, 12, 14 and 16 bit digitizers */
-	
+
     CAEN_DGTZ_UINT8_EVENT_t     *Event8=NULL; /* generic event struct with 8 bit data (only for 8 bit digitizers) */ 
     CAEN_DGTZ_X742_EVENT_t       *Event742=NULL;  /* custom event struct with 8 bit data (only for 8 bit digitizers) */
     WDPlot_t                    *PlotVar=NULL;
     FILE *f_ini;
-	CAEN_DGTZ_DRS4Correction_t X742Tables[MAX_X742_GROUP_SIZE];
+    CAEN_DGTZ_DRS4Correction_t X742Tables[MAX_X742_GROUP_SIZE];
 
     int ReloadCfgStatus = 0x7FFFFFFF; // Init to the bigger positive number
 
@@ -859,7 +904,7 @@ Restart:
         ErrCode = ERR_DGZ_PROGRAM;
         goto QuitProgram;
     }
-    
+
     // Select the next enabled group for plotting
     if ((WDcfg.EnableMask) && (BoardInfo.FamilyCode == CAEN_DGTZ_XX742_FAMILY_CODE))
         if( ((WDcfg.EnableMask>>WDrun.GroupPlotIndex)&0x1)==0 )
@@ -919,12 +964,12 @@ Restart:
     if(WDcfg.Nbit == 8)
         ret = CAEN_DGTZ_AllocateEvent(handle, (void**)&Event8);
     else {
-		if (BoardInfo.FamilyCode != CAEN_DGTZ_XX742_FAMILY_CODE) {
-			ret = CAEN_DGTZ_AllocateEvent(handle, (void**)&Event16);
-		}
-		else {
-			ret = CAEN_DGTZ_AllocateEvent(handle, (void**)&Event742);
-		}
+        if (BoardInfo.FamilyCode != CAEN_DGTZ_XX742_FAMILY_CODE) {
+            ret = CAEN_DGTZ_AllocateEvent(handle, (void**)&Event16);
+        }
+        else {
+            ret = CAEN_DGTZ_AllocateEvent(handle, (void**)&Event742);
+        }
     }
     if (ret != CAEN_DGTZ_Success) {
         ErrCode = ERR_MALLOC;
@@ -936,8 +981,8 @@ Restart:
         goto QuitProgram;
     }
 
-	//if (WDcfg.TestPattern) CAEN_DGTZ_DisableDRS4Correction(handle);
-	//else CAEN_DGTZ_EnableDRS4Correction(handle);
+    //if (WDcfg.TestPattern) CAEN_DGTZ_DisableDRS4Correction(handle);
+    //else CAEN_DGTZ_EnableDRS4Correction(handle);
 
     if (WDrun.Restart && WDrun.AcqRun)
         CAEN_DGTZ_SWStartAcquisition(handle);
@@ -960,16 +1005,16 @@ Restart:
             if(WDcfg.Nbit == 8)
                 CAEN_DGTZ_FreeEvent(handle, (void**)&Event8);
             else
-				if (BoardInfo.FamilyCode != CAEN_DGTZ_XX742_FAMILY_CODE) {
-					CAEN_DGTZ_FreeEvent(handle, (void**)&Event16);
-				}
-				else {
-				    CAEN_DGTZ_FreeEvent(handle, (void**)&Event742);
-				}
-            f_ini = fopen(ConfigFileName, "r");
-            ReloadCfgStatus = ParseConfigFile(f_ini, &WDcfg);
-            fclose(f_ini);
-            goto Restart;
+                if (BoardInfo.FamilyCode != CAEN_DGTZ_XX742_FAMILY_CODE) {
+                    CAEN_DGTZ_FreeEvent(handle, (void**)&Event16);
+                }
+                else {
+                    CAEN_DGTZ_FreeEvent(handle, (void**)&Event742);
+                }
+                f_ini = fopen(ConfigFileName, "r");
+                ReloadCfgStatus = ParseConfigFile(f_ini, &WDcfg);
+                fclose(f_ini);
+                goto Restart;
         }
         if (WDrun.AcqRun == 0)
             continue;
@@ -1006,8 +1051,8 @@ Restart:
                 } else {
                     if (INTERRUPT_MODE == CAEN_DGTZ_IRQ_MODE_ROAK)
                         ret = CAEN_DGTZ_RearmInterrupt(handle);
-				}
-			}
+                }
+            }
         }
 
         /* Read data from the board */
@@ -1025,6 +1070,14 @@ Restart:
                 goto QuitProgram;
             }
         }
+		else {
+			uint32_t lstatus;
+			ret = CAEN_DGTZ_ReadRegister(handle, CAEN_DGTZ_ACQ_STATUS_ADD, &lstatus);
+			if (lstatus & (0x1 << 19)) {
+				ErrCode = ERR_OVERTEMP;
+                goto QuitProgram;
+			}
+		}
 InterruptTimeout:
         /* Calculate throughput and trigger rate (every second) */
         Nb += BufferSize;
@@ -1058,10 +1111,10 @@ InterruptTimeout:
                 ret = CAEN_DGTZ_DecodeEvent(handle, EventPtr, (void**)&Event8);
             else
                 if (BoardInfo.FamilyCode != CAEN_DGTZ_XX742_FAMILY_CODE) {
-					ret = CAEN_DGTZ_DecodeEvent(handle, EventPtr, (void**)&Event16);
-				}
-				else {
-					ret = CAEN_DGTZ_DecodeEvent(handle, EventPtr, (void**)&Event742);
+                    ret = CAEN_DGTZ_DecodeEvent(handle, EventPtr, (void**)&Event16);
+                }
+                else {
+                    ret = CAEN_DGTZ_DecodeEvent(handle, EventPtr, (void**)&Event742);
                     if (WDcfg.useCorrections != -1) { // if manual corrections
                         uint32_t gr;
                         for (gr = 0; gr < WDcfg.MaxGroupNumber; gr++) {
@@ -1070,171 +1123,171 @@ InterruptTimeout:
                             ApplyDataCorrection( &(X742Tables[gr]), WDcfg.DRS4Frequency, WDcfg.useCorrections, &(Event742->DataGroup[gr]));
                         }
                     }
-				}
-            if (ret) {
-                ErrCode = ERR_EVENT_BUILD;
-                goto QuitProgram;
-            }
-
-            /* Update Histograms */
-            if (WDrun.RunHisto) {
-                for(ch=0; ch<WDcfg.Nch; ch++) {
-                    int chmask = ((BoardInfo.FamilyCode == CAEN_DGTZ_XX740_FAMILY_CODE) || (BoardInfo.FamilyCode == CAEN_DGTZ_XX742_FAMILY_CODE) )? (ch/8) : ch;
-                    if (!(EventInfo.ChannelMask & (1<<chmask)))
-                        continue;
-                    if (WDrun.Histogram[ch] == NULL) {
-                        if ((WDrun.Histogram[ch] = malloc((uint64_t)(1<<WDcfg.Nbit) * sizeof(uint32_t))) == NULL) {
-                            ErrCode = ERR_HISTO_MALLOC;
-                            goto QuitProgram;
-                        }
-                        memset(WDrun.Histogram[ch], 0, (uint64_t)(1<<WDcfg.Nbit) * sizeof(uint32_t));
-                    }
-                    if (WDcfg.Nbit == 8)
-                        for(i=0; i<(int)Event8->ChSize[ch]; i++)
-                            WDrun.Histogram[ch][Event8->DataChannel[ch][i]]++;
-                    else {
-                        if (BoardInfo.FamilyCode != CAEN_DGTZ_XX742_FAMILY_CODE) {
-                            for(i=0; i<(int)Event16->ChSize[ch]; i++)
-                                WDrun.Histogram[ch][Event16->DataChannel[ch][i]]++;
-                        }
-                        else {
-                            printf("Can't build samples histogram for this board: it has float samples.\n");
-                            WDrun.RunHisto = 0;
-                            break;
-                        }
-                    }
                 }
-            }
-
-			/* Write Event data to file */
-			if (WDrun.ContinuousWrite || WDrun.SingleWrite) {
-				// Note: use a thread here to allow parallel readout and file writing
-				if (BoardInfo.FamilyCode == CAEN_DGTZ_XX742_FAMILY_CODE) {	
-					ret = WriteOutputFilesx742(&WDcfg, &WDrun, &EventInfo, Event742); 
-				}
-				else if (WDcfg.Nbit == 8) {
-					ret = WriteOutputFiles(&WDcfg, &WDrun, &EventInfo, Event8);
-				}
-				else {
-					ret = WriteOutputFiles(&WDcfg, &WDrun, &EventInfo, Event16);
-				}
-				if (ret) {
-					ErrCode = ERR_OUTFILE_WRITE;
-					goto QuitProgram;
-				}
-				if (WDrun.SingleWrite) {
-					printf("Single Event saved to output files\n");
-					WDrun.SingleWrite = 0;
-				}
-			}
-
-            /* Plot Waveforms */
-            if ((WDrun.ContinuousPlot || WDrun.SinglePlot) && !IsPlotterBusy()) {
-                int Ntraces = (BoardInfo.FamilyCode == CAEN_DGTZ_XX740_FAMILY_CODE) ? 8 : WDcfg.Nch;
-                if (BoardInfo.FamilyCode == CAEN_DGTZ_XX742_FAMILY_CODE) Ntraces = 9;
-                if (PlotVar == NULL) {
-                    int TraceLength = max(WDcfg.RecordLength, (1<<WDcfg.Nbit));
-                    PlotVar = OpenPlotter(WDcfg.GnuPlotPath, Ntraces, TraceLength);
-                    WDrun.SetPlotOptions = 1;
+                if (ret) {
+                    ErrCode = ERR_EVENT_BUILD;
+                    goto QuitProgram;
                 }
-                if (PlotVar == NULL) {
-                    printf("Can't open the plotter\n");
-                    WDrun.ContinuousPlot = 0;
-                    WDrun.SinglePlot = 0;
-                } else {
-                    int Tn = 0;
-                    if (WDrun.SetPlotOptions) {
-						if ((WDrun.PlotType == PLOT_WAVEFORMS) && (BoardInfo.FamilyCode == CAEN_DGTZ_XX742_FAMILY_CODE)) {
-                            strcpy(PlotVar->Title, "Waveform");
-                            PlotVar->Xscale = WDcfg.Ts;
-                            strcpy(PlotVar->Xlabel, "ns");
-                            strcpy(PlotVar->Ylabel, "ADC counts");
-                            PlotVar->Yautoscale = 0;
-                            PlotVar->Ymin = 0;
-                            PlotVar->Ymax = (float)(1<<WDcfg.Nbit);
-                            PlotVar->Xautoscale = 1;
-                        } else if (WDrun.PlotType == PLOT_WAVEFORMS) {
-                            strcpy(PlotVar->Title, "Waveform");
-                            PlotVar->Xscale = WDcfg.Ts/1000;
-                            strcpy(PlotVar->Xlabel, "us");
-                            strcpy(PlotVar->Ylabel, "ADC counts");
-                            PlotVar->Yautoscale = 0;
-                            PlotVar->Ymin = 0;
-                            PlotVar->Ymax = (float)(1<<WDcfg.Nbit);
-                            PlotVar->Xautoscale = 1;
-                        }  else if (WDrun.PlotType == PLOT_FFT) {
-                            strcpy(PlotVar->Title, "FFT");
-                            strcpy(PlotVar->Xlabel, "MHz");
-                            strcpy(PlotVar->Ylabel, "dB");
-                            PlotVar->Yautoscale = 1;
-                            PlotVar->Ymin = -160;
-                            PlotVar->Ymax = 0;
-                            PlotVar->Xautoscale = 1;
-                        } else if (WDrun.PlotType == PLOT_HISTOGRAM) {
-                            PlotVar->Xscale = 1.0;
-                            strcpy(PlotVar->Xlabel, "ADC channels");
-                            strcpy(PlotVar->Ylabel, "Counts");
-                            PlotVar->Yautoscale = 1;
-                            PlotVar->Xautoscale = 1;
-                        }
-                        SetPlotOptions();
-                        WDrun.SetPlotOptions = 0;
-                    }
-                    for(ch=0; ch<Ntraces; ch++) {
-                        int absCh = WDrun.GroupPlotIndex * 8 + ch;
 
-                        if (!((WDrun.ChannelPlotMask >> ch) & 1))
+                /* Update Histograms */
+                if (WDrun.RunHisto) {
+                    for(ch=0; ch<WDcfg.Nch; ch++) {
+                        int chmask = ((BoardInfo.FamilyCode == CAEN_DGTZ_XX740_FAMILY_CODE) || (BoardInfo.FamilyCode == CAEN_DGTZ_XX742_FAMILY_CODE) )? (ch/8) : ch;
+                        if (!(EventInfo.ChannelMask & (1<<chmask)))
                             continue;
-                       if ((BoardInfo.FamilyCode == CAEN_DGTZ_XX742_FAMILY_CODE) && ((ch != 0) && (absCh % 8) == 0)) sprintf(PlotVar->TraceName[Tn], "TR %d", (int)((absCh-1) / 16));
-                       else sprintf(PlotVar->TraceName[Tn], "CH %d", absCh);
-                        if (WDrun.PlotType == PLOT_WAVEFORMS) {
-                            if (WDcfg.Nbit == 8) {
-                                PlotVar->TraceSize[Tn] = Event8->ChSize[absCh];
-                                memcpy(PlotVar->TraceData[Tn], Event8->DataChannel[absCh], Event8->ChSize[absCh]);
-                                PlotVar->DataType = PLOT_DATA_UINT8;
-							} else if (BoardInfo.FamilyCode == CAEN_DGTZ_XX742_FAMILY_CODE) {
-								if (Event742->GrPresent[WDrun.GroupPlotIndex]) { 
-									PlotVar->TraceSize[Tn] = Event742->DataGroup[WDrun.GroupPlotIndex].ChSize[ch];
-									memcpy(PlotVar->TraceData[Tn], Event742->DataGroup[WDrun.GroupPlotIndex].DataChannel[ch], Event742->DataGroup[WDrun.GroupPlotIndex].ChSize[ch] * sizeof(float));
-									PlotVar->DataType = PLOT_DATA_FLOAT;
-									}
-								}
-                            else {
-								PlotVar->TraceSize[Tn] = Event16->ChSize[absCh];
-                                memcpy(PlotVar->TraceData[Tn], Event16->DataChannel[absCh], Event16->ChSize[absCh] * 2);
-                                PlotVar->DataType = PLOT_DATA_UINT16;
-                           }  
-                        } else if (WDrun.PlotType == PLOT_FFT) {
-                            int FFTns;
-                            PlotVar->DataType = PLOT_DATA_DOUBLE;
-                            if(WDcfg.Nbit == 8)
-                                FFTns = FFT(Event8->DataChannel[absCh], PlotVar->TraceData[Tn], Event8->ChSize[absCh], HANNING_FFT_WINDOW, SAMPLETYPE_UINT8);
-                            else if (BoardInfo.FamilyCode == CAEN_DGTZ_XX742_FAMILY_CODE) {
-                                FFTns = FFT(Event742->DataGroup[WDrun.GroupPlotIndex].DataChannel[ch], PlotVar->TraceData[Tn],
-                                    Event742->DataGroup[WDrun.GroupPlotIndex].ChSize[ch], HANNING_FFT_WINDOW, SAMPLETYPE_FLOAT);
+                        if (WDrun.Histogram[ch] == NULL) {
+                            if ((WDrun.Histogram[ch] = malloc((uint64_t)(1<<WDcfg.Nbit) * sizeof(uint32_t))) == NULL) {
+                                ErrCode = ERR_HISTO_MALLOC;
+                                goto QuitProgram;
                             }
-                            else
-                                FFTns = FFT(Event16->DataChannel[absCh], PlotVar->TraceData[Tn], Event16->ChSize[absCh], HANNING_FFT_WINDOW, SAMPLETYPE_UINT16);
-                            PlotVar->Xscale = (1000/WDcfg.Ts)/(2*FFTns);
-                            PlotVar->TraceSize[Tn] = FFTns;
-                        } else if (WDrun.PlotType == PLOT_HISTOGRAM) {
-                            PlotVar->DataType = PLOT_DATA_UINT32;
-                            strcpy(PlotVar->Title, "Histogram");
-                            PlotVar->TraceSize[Tn] = 1<<WDcfg.Nbit;
-                            memcpy(PlotVar->TraceData[Tn], WDrun.Histogram[absCh], (uint64_t)(1<<WDcfg.Nbit) * sizeof(uint32_t));
+                            memset(WDrun.Histogram[ch], 0, (uint64_t)(1<<WDcfg.Nbit) * sizeof(uint32_t));
                         }
-                        Tn++;
-                        if (Tn >= MAX_NUM_TRACES)
-                            break;
+                        if (WDcfg.Nbit == 8)
+                            for(i=0; i<(int)Event8->ChSize[ch]; i++)
+                                WDrun.Histogram[ch][Event8->DataChannel[ch][i]]++;
+                        else {
+                            if (BoardInfo.FamilyCode != CAEN_DGTZ_XX742_FAMILY_CODE) {
+                                for(i=0; i<(int)Event16->ChSize[ch]; i++)
+                                    WDrun.Histogram[ch][Event16->DataChannel[ch][i]]++;
+                            }
+                            else {
+                                printf("Can't build samples histogram for this board: it has float samples.\n");
+                                WDrun.RunHisto = 0;
+                                break;
+                            }
+                        }
                     }
-                    PlotVar->NumTraces = Tn;
-                    if( PlotWaveforms() < 0) {
-                        WDrun.ContinuousPlot = 0;
-                        printf("Plot Error\n");
-                    }
-                    WDrun.SinglePlot = 0;
                 }
-            }
+
+                /* Write Event data to file */
+                if (WDrun.ContinuousWrite || WDrun.SingleWrite) {
+                    // Note: use a thread here to allow parallel readout and file writing
+                    if (BoardInfo.FamilyCode == CAEN_DGTZ_XX742_FAMILY_CODE) {	
+                        ret = WriteOutputFilesx742(&WDcfg, &WDrun, &EventInfo, Event742); 
+                    }
+                    else if (WDcfg.Nbit == 8) {
+                        ret = WriteOutputFiles(&WDcfg, &WDrun, &EventInfo, Event8);
+                    }
+                    else {
+                        ret = WriteOutputFiles(&WDcfg, &WDrun, &EventInfo, Event16);
+                    }
+                    if (ret) {
+                        ErrCode = ERR_OUTFILE_WRITE;
+                        goto QuitProgram;
+                    }
+                    if (WDrun.SingleWrite) {
+                        printf("Single Event saved to output files\n");
+                        WDrun.SingleWrite = 0;
+                    }
+                }
+
+                /* Plot Waveforms */
+                if ((WDrun.ContinuousPlot || WDrun.SinglePlot) && !IsPlotterBusy()) {
+                    int Ntraces = (BoardInfo.FamilyCode == CAEN_DGTZ_XX740_FAMILY_CODE) ? 8 : WDcfg.Nch;
+                    if (BoardInfo.FamilyCode == CAEN_DGTZ_XX742_FAMILY_CODE) Ntraces = 9;
+                    if (PlotVar == NULL) {
+                        int TraceLength = max(WDcfg.RecordLength, (1<<WDcfg.Nbit));
+                        PlotVar = OpenPlotter(WDcfg.GnuPlotPath, Ntraces, TraceLength);
+                        WDrun.SetPlotOptions = 1;
+                    }
+                    if (PlotVar == NULL) {
+                        printf("Can't open the plotter\n");
+                        WDrun.ContinuousPlot = 0;
+                        WDrun.SinglePlot = 0;
+                    } else {
+                        int Tn = 0;
+                        if (WDrun.SetPlotOptions) {
+                            if ((WDrun.PlotType == PLOT_WAVEFORMS) && (BoardInfo.FamilyCode == CAEN_DGTZ_XX742_FAMILY_CODE)) {
+                                strcpy(PlotVar->Title, "Waveform");
+                                PlotVar->Xscale = WDcfg.Ts;
+                                strcpy(PlotVar->Xlabel, "ns");
+                                strcpy(PlotVar->Ylabel, "ADC counts");
+                                PlotVar->Yautoscale = 0;
+                                PlotVar->Ymin = 0;
+                                PlotVar->Ymax = (float)(1<<WDcfg.Nbit);
+                                PlotVar->Xautoscale = 1;
+                            } else if (WDrun.PlotType == PLOT_WAVEFORMS) {
+                                strcpy(PlotVar->Title, "Waveform");
+                                PlotVar->Xscale = WDcfg.Ts * WDcfg.DecimationFactor/1000;
+                                strcpy(PlotVar->Xlabel, "us");
+                                strcpy(PlotVar->Ylabel, "ADC counts");
+                                PlotVar->Yautoscale = 0;
+                                PlotVar->Ymin = 0;
+                                PlotVar->Ymax = (float)(1<<WDcfg.Nbit);
+                                PlotVar->Xautoscale = 1;
+                            }  else if (WDrun.PlotType == PLOT_FFT) {
+                                strcpy(PlotVar->Title, "FFT");
+                                strcpy(PlotVar->Xlabel, "MHz");
+                                strcpy(PlotVar->Ylabel, "dB");
+                                PlotVar->Yautoscale = 1;
+                                PlotVar->Ymin = -160;
+                                PlotVar->Ymax = 0;
+                                PlotVar->Xautoscale = 1;
+                            } else if (WDrun.PlotType == PLOT_HISTOGRAM) {
+                                PlotVar->Xscale = 1.0;
+                                strcpy(PlotVar->Xlabel, "ADC channels");
+                                strcpy(PlotVar->Ylabel, "Counts");
+                                PlotVar->Yautoscale = 1;
+                                PlotVar->Xautoscale = 1;
+                            }
+                            SetPlotOptions();
+                            WDrun.SetPlotOptions = 0;
+                        }
+                        for(ch=0; ch<Ntraces; ch++) {
+                            int absCh = WDrun.GroupPlotIndex * 8 + ch;
+
+                            if (!((WDrun.ChannelPlotMask >> ch) & 1))
+                                continue;
+                            if ((BoardInfo.FamilyCode == CAEN_DGTZ_XX742_FAMILY_CODE) && ((ch != 0) && (absCh % 8) == 0)) sprintf(PlotVar->TraceName[Tn], "TR %d", (int)((absCh-1) / 16));
+                            else sprintf(PlotVar->TraceName[Tn], "CH %d", absCh);
+                            if (WDrun.PlotType == PLOT_WAVEFORMS) {
+                                if (WDcfg.Nbit == 8) {
+                                    PlotVar->TraceSize[Tn] = Event8->ChSize[absCh];
+                                    memcpy(PlotVar->TraceData[Tn], Event8->DataChannel[absCh], Event8->ChSize[absCh]);
+                                    PlotVar->DataType = PLOT_DATA_UINT8;
+                                } else if (BoardInfo.FamilyCode == CAEN_DGTZ_XX742_FAMILY_CODE) {
+                                    if (Event742->GrPresent[WDrun.GroupPlotIndex]) { 
+                                        PlotVar->TraceSize[Tn] = Event742->DataGroup[WDrun.GroupPlotIndex].ChSize[ch];
+                                        memcpy(PlotVar->TraceData[Tn], Event742->DataGroup[WDrun.GroupPlotIndex].DataChannel[ch], Event742->DataGroup[WDrun.GroupPlotIndex].ChSize[ch] * sizeof(float));
+                                        PlotVar->DataType = PLOT_DATA_FLOAT;
+                                    }
+                                }
+                                else {
+                                    PlotVar->TraceSize[Tn] = Event16->ChSize[absCh];
+                                    memcpy(PlotVar->TraceData[Tn], Event16->DataChannel[absCh], Event16->ChSize[absCh] * 2);
+                                    PlotVar->DataType = PLOT_DATA_UINT16;
+                                }  
+                            } else if (WDrun.PlotType == PLOT_FFT) {
+                                int FFTns;
+                                PlotVar->DataType = PLOT_DATA_DOUBLE;
+                                if(WDcfg.Nbit == 8)
+                                    FFTns = FFT(Event8->DataChannel[absCh], PlotVar->TraceData[Tn], Event8->ChSize[absCh], HANNING_FFT_WINDOW, SAMPLETYPE_UINT8);
+                                else if (BoardInfo.FamilyCode == CAEN_DGTZ_XX742_FAMILY_CODE) {
+                                    FFTns = FFT(Event742->DataGroup[WDrun.GroupPlotIndex].DataChannel[ch], PlotVar->TraceData[Tn],
+                                        Event742->DataGroup[WDrun.GroupPlotIndex].ChSize[ch], HANNING_FFT_WINDOW, SAMPLETYPE_FLOAT);
+                                }
+                                else
+                                    FFTns = FFT(Event16->DataChannel[absCh], PlotVar->TraceData[Tn], Event16->ChSize[absCh], HANNING_FFT_WINDOW, SAMPLETYPE_UINT16);
+                                PlotVar->Xscale = (1000/WDcfg.Ts)/(2*FFTns);
+                                PlotVar->TraceSize[Tn] = FFTns;
+                            } else if (WDrun.PlotType == PLOT_HISTOGRAM) {
+                                PlotVar->DataType = PLOT_DATA_UINT32;
+                                strcpy(PlotVar->Title, "Histogram");
+                                PlotVar->TraceSize[Tn] = 1<<WDcfg.Nbit;
+                                memcpy(PlotVar->TraceData[Tn], WDrun.Histogram[absCh], (uint64_t)(1<<WDcfg.Nbit) * sizeof(uint32_t));
+                            }
+                            Tn++;
+                            if (Tn >= MAX_NUM_TRACES)
+                                break;
+                        }
+                        PlotVar->NumTraces = Tn;
+                        if( PlotWaveforms() < 0) {
+                            WDrun.ContinuousPlot = 0;
+                            printf("Plot Error\n");
+                        }
+                        WDrun.SinglePlot = 0;
+                    }
+                }
         }
     }
     ErrCode = ERR_NONE;
@@ -1244,7 +1297,7 @@ QuitProgram:
         printf("\a%s\n", ErrMsg[ErrCode]);
 #ifdef WIN32
         printf("Press a key to quit\n");
-		getch();
+        getch();
 #endif
     }
 
