@@ -24,8 +24,8 @@ then
 	echo "*******************************************************************"
 	exit 0
 else
-	install libCAENComm.so.1.02 /usr/lib
-	ln -sf /usr/lib/libCAENComm.so.1.02 /usr/lib/libCAENComm.so
+	install x86/libCAENComm.so.1.2.0 /usr/lib
+	ln -sf /usr/lib/libCAENComm.so.1.2.0 /usr/lib/libCAENComm.so
 	/sbin/ldconfig
 	cp ../include/* /usr/include/
 fi

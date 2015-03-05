@@ -7,6 +7,8 @@
   CAENComm Library Release Notes
 
   -----------------------------------------------------------------------------
+  Rel. 1.2   - Dec	 	 2013
+  Rel. 1.1   - May	 	 2012
   Rel. 1.02  - July 	 2010
   Rel. 1.01  - March 	 2010
   Rel. 1.0   - July      2009
@@ -27,6 +29,17 @@
 
   - Linux kernel 2.4 or 2.6 and GNU C/C++ compiler
   - CAENVMELib library version 2.12 or above.
+  
+  What's New in Rel. 1.2
+  --------------------------
+  
+   - add CAENComm_VMELIB_handle in GetInfo
+   - modified CAEN_Comm_ConnectionType removing PCI/PCIE options replacing with OpticalLink. 
+  
+  What's New in Rel. 1.1
+  --------------------------
+  
+   - FIXED BUG on OpenDevice.
   
   What's New in Rel. 1.02
   --------------------------

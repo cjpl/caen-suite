@@ -74,9 +74,9 @@
 /* Link Types */
 typedef enum CAEN_Comm_ConnectionType {
  CAENComm_USB				= 0,
- CAENComm_PCI_OpticalLink	= 1,
- CAENComm_PCIE_OpticalLink	= 2,
- CAENComm_PCIE				= 3,
+ CAENComm_OpticalLink	= 1,
+  CAENComm_PCI_OpticalLink	= 1, // DEPRECATED
+ CAENComm_PCIE_OpticalLink	= 1, // DEPRECATED
 } CAENComm_ConnectionType;
 
 typedef enum CAENComm_ErrorCode {
@@ -103,6 +103,7 @@ typedef enum CAENCOMM_INFO {
 		CAENComm_VME_Bridge_SN		= 2,		/* s/n of the VME bridge */
 		CAENComm_VME_Bridge_FwRel1	= 3,		/* Firmware Release for the VME bridge */
 		CAENComm_VME_Bridge_FwRel2	= 4,		/* Firmware Release for the optical chipset inside the VME bridge (V2718 only)*/
+		CAENComm_VMELIB_handle		= 5,		/* The VMELib handle used by CAENCOMM */
 } CAENCOMM_INFO;
 
 
@@ -116,6 +117,10 @@ typedef enum IRQLevels {
         IRQ7 = 0x40         /* Interrupt level 7                            */
 } IRQLevels;
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /*##########################################################################*/
 /*
@@ -378,7 +383,7 @@ CAENComm_ErrorCode STDCALL CAENComm_IRQWait(int handle, uint32_t Timeout);
 * \param   [OUT] VMEHandle: The CAEN Bridhe handle to use in VMEIRQCheck and VMEIACKCycle
 * \return  0 = Success; negative numbers are error codes
 ******************************************************************************/
-CAENComm_ErrorCode STDCALL CAENComm_VMEIRQWait(CAENComm_ConnectionType LinkType, int LinkNum, int ConetNode, uint8_t IRQMask, uint32_t Timeout,int *VMEHandle);
+CAENComm_ErrorCode STDCALL CAENComm_VMEIRQWait(CAENComm_ConnectionType LinkType, int LinkNum, int ConetNode, uint8_t IRQMask, uint32_t Timeout, int *VMEHandle);
 
 /**************************************************************************//**
 * \fn      CAENComm_ErrorCode STDCALL CAENComm_Info(int handle, CAENCOMM_INFO info, char *data)
@@ -386,10 +391,12 @@ CAENComm_ErrorCode STDCALL CAENComm_VMEIRQWait(CAENComm_ConnectionType LinkType,
 
 * \param   [IN]  handle: device handler
 * \param   [IN]  info: The interested info (see CAENCOMM_INFO enum).
-* \param   [OUT]  data: an array (user defined to 30 byte) with the requested info
+* \param   [OUT]  data: an array (user defined to 30 byte) with the requested info for
+*			all the CAENCOMM_INFO entry except for 'CAENComm_VMELIB_handle' that 
+*			requires a pointer to an uint32_t value
 * \return  0 = Success; negative numbers are error codes
 ******************************************************************************/
-CAENComm_ErrorCode STDCALL CAENComm_Info(int handle, CAENCOMM_INFO info, char *data);
+CAENComm_ErrorCode STDCALL CAENComm_Info(int handle, CAENCOMM_INFO info, void *data);
 
 
 /**************************************************************************//**
@@ -400,4 +407,9 @@ CAENComm_ErrorCode STDCALL CAENComm_Info(int handle, CAENCOMM_INFO info, char *d
 * \return  0 = Success; negative numbers are error codes
 ******************************************************************************/
 CAENComm_ErrorCode STDCALL CAENComm_SWRelease(char *SwRel);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

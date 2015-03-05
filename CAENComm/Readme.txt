@@ -9,9 +9,9 @@
         
         ----------------------------------------------------------------------
 
-        Package for Linux kernels 2.4, 2.6
+        Package for Linux glibc 2.12 or greater
 
-        July 2010
+        December 2013
 
 
  The complete documentation can be found in the User's Manual on CAEN's web
@@ -34,7 +34,7 @@
  System Requirements
  -------------------
 
- - Linux kernel Rel. 2.4 or 2.6 with gnu C/C++ compiler
+ - Linux glibc 2.12 or greater
  - CAENVMELib library version 2.12 or above.
 
 
@@ -51,7 +51,7 @@ To install the dynamic library:
 
   - Execute: 
       sh install               to install the 32bit version of the library compiled with glibc version 2.5
-      sh install_x64           to install the 64bit version of the library compiled with glibc version 2.5
+      sh install_x64           to install the 64bit version of the library compiled with glibc version 2.12
 
  The installation copies and installs the library in /usr/lib.
 
