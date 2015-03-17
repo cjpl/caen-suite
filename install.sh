@@ -6,7 +6,6 @@ TARGET="$1"
 DEST=${2:-/opt/daq}
 ARCH=${ARCH:-x64}
 PREFIX=${PREFIX:-CAEN}
-CBOTS=(VMELib CAENDigitizer USBDrvB WaveDump CAENComm Scope)
 INSTALL="$(which install) -p"
 INSTALLDIR="cp -ap"
 
@@ -128,9 +127,6 @@ case "${TARGET}" in
     caencomm | c)
         inst_caencomm
         ;;
-    usb | u)
-        inst_usbdrv
-        ;;
     wavedump | w)
         inst_wavedump
         ;;
@@ -141,14 +137,16 @@ case "${TARGET}" in
         inst_vmelib
         inst_digitizer
         ;;
-    drivers | d)
+    drivers | d | usb | u)
         inst_usbdrv
         ;;
     all)
         echo "Install all stuff: ${CBOTS[@]}"
         ;;
     *)
-        echo "Usage: $0 [dest] [args]"
+        echo "Usage: $0 <target> [dest]"
+        echo "Available targets: vmelib digitizer caencomm libs wavedump scope usb"
+        echo "Default destination: ${DEST}"
         ;;
 esac
 
