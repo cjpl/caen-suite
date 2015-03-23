@@ -287,7 +287,7 @@ ioctl_v1718(struct inode *inode, struct file *file, unsigned int cmd,
 #if LINUX_VERSION_CODE >= VERSION(2,6,11)
 static long unlocked_ioctl_v1718(struct file *file, unsigned int cmd, unsigned long arg)
 {
-	struct inode *inode = file->f_dentry->d_inode;
+	struct inode *inode = file->f_path.dentry;
         struct v1718_usb_data *s = (struct v1718_usb_data *)file->private_data;
 	long ret;
 
