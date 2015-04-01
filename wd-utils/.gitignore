@@ -1,0 +1,11 @@
+
+# files
+wdviewer
+*Dict.*
+*.obj
+*.o
+*.pyc
+
+# dir
+test/
+
