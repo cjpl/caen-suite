@@ -26,7 +26,7 @@ Targets:
 * `caencomm`  -- Install library CAENComm
 * `libs`      -- Install libraries, CAENVMELib and CAENDigitizer
 * `wavedump`  -- Install libraries and WaveDump
-* `scope`     -- Install related libraries and CAENScope
-* `usb`       -- Install USBDrvB
+* `scope`     -- Install obsolete utility CAENScope
+* `usb`       -- Install USBDrvB (not ready)
 
 

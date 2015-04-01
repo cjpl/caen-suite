@@ -9,6 +9,30 @@ PREFIX=${PREFIX:-CAEN}
 INSTALL="$(which install) -p"
 INSTALLDIR="cp -ap"
 
+usage () {
+    cat <<EOF
+Purpose: Script to install caen-suite.
+
+Usage: ./install.sh <target> [dest]
+
+Target:
+  - vmelib     -- install library VMELib and headers
+  - digitizer  -- install library CAENDigitizer and headers
+  - caencomm   -- install library CAENComm and headers
+  - libs       -- install all above libraries
+  - wavedump   -- install utility wavedump
+  - scope      -- install obsolete utility CAENScope (just for test)
+
+Note: To install CAENUSBdrvB, you can follow this step --
+  : cd USBdrvB
+  : make
+  : sudo make install
+  : sudo modprobe CAENUSBdrvB
+
+EOF
+
+}
+
 ############################################################
 # functions
 
@@ -141,12 +165,14 @@ case "${TARGET}" in
         inst_usbdrv
         ;;
     all)
-        echo "Install all stuff: ${CBOTS[@]}"
+        inst_vmelib
+        inst_caencomm
+        inst_digitizer
+        inst_wavedump
+        inst_caenscope
         ;;
     *)
-        echo "Usage: $0 <target> [dest]"
-        echo "Available targets: vmelib digitizer caencomm libs wavedump scope usb"
-        echo "Default destination: ${DEST}"
+        usage
         ;;
 esac
 
